@@ -386,6 +386,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function switchScreen(fromScreen, toScreen, isForward = true) {
         if (!fromScreen || !toScreen) return;
         
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.minHeight = '700px'; // Adjust this value as needed
+        }
+        
         fromScreen.classList.add(isForward ? 'slide-out-left' : 'slide-out-right');
         
         setTimeout(() => {
@@ -708,4 +713,9 @@ document.addEventListener('DOMContentLoaded', function() {
             currentScreen = 'account-selection-screen';
         }
     });
+
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.minHeight = '700px'; // Adjust this value as needed
+    }
 });
