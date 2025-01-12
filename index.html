@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Selection</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+</head>
+<body>
+    
+
+        <!-- Customization Controls -->
+        <div class="customization-controls">
+            <div class="controls-header">
+                <i data-lucide="settings-2"></i>
+                <span>Customisable UI</span>
+            </div>
+            
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="logo-input">Brand Logo:</label>
+                    <div class="upload-container">
+                        <div class="upload-button">
+                            <input type="file" id="logo-input" accept="image/*" hidden>
+                            <i data-lucide="upload" class="upload-icon"></i>
+                            <i data-lucide="refresh-cw" class="refresh-icon" style="display: none;"></i>
+                            <span class="button-text">Upload Logo</span>
+                            <span class="file-name"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="color-input">Brand Colour:</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color-input" value="#722DAA">
+                        <span class="color-value">#722DAA</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="name-input">Brand Name:</label>
+                    <input type="text" id="name-input" placeholder="Enter brand name">
+                </div>
+
+                <div class="control-group">
+                    <label>Brand Font:</label>
+                    <div class="select-wrapper">
+                        <select class="font-select" id="font-input">
+                            <option value="" disabled selected>Search fonts</option>
+                            <option value="Abel">Abel</option>
+                            <option value="Archivo">Archivo</option>
+                            <option value="Arimo">Arimo</option>
+                            <option value="Assistant">Assistant</option>
+                            <option value="Barlow">Barlow</option>
+                            <option value="Bitter">Bitter</option>
+                            <option value="Cabin">Cabin</option>
+                            <option value="Catamaran">Catamaran</option>
+                            <option value="Crimson Text">Crimson Text</option>
+                            <option value="DM Sans">DM Sans</option>
+                            <option value="Dosis">Dosis</option>
+                            <option value="Fira Sans">Fira Sans</option>
+                            <option value="Heebo">Heebo</option>
+                            <option value="Hind Siliguri">Hind Siliguri</option>
+                            <option value="IBM Plex Sans">IBM Plex Sans</option>
+                            <option value="Inconsolata">Inconsolata</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Josefin Sans">Josefin Sans</option>
+                            <option value="Karla">Karla</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Libre Baskerville">Libre Baskerville</option>
+                            <option value="Libre Franklin">Libre Franklin</option>
+                            <option value="Manrope">Manrope</option>
+                            <option value="Maven Pro">Maven Pro</option>
+                            <option value="Merriweather">Merriweather</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Mukta">Mukta</option>
+                            <option value="Mulish">Mulish</option>
+                            <option value="Nanum Gothic">Nanum Gothic</option>
+                            <option value="Noto Sans">Noto Sans</option>
+                            <option value="Noto Sans JP">Noto Sans JP</option>
+                            <option value="Noto Serif">Noto Serif</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Oswald">Oswald</option>
+                            <option value="Oxygen">Oxygen</option>
+                            <option value="PT Sans">PT Sans</option>
+                            <option value="PT Serif">PT Serif</option>
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Prompt">Prompt</option>
+                            <option value="Quicksand">Quicksand</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Roboto Condensed">Roboto Condensed</option>
+                            <option value="Roboto Mono">Roboto Mono</option>
+                            <option value="Rubik">Rubik</option>
+                            <option value="Source Code Pro">Source Code Pro</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Space Grotesk">Space Grotesk</option>
+                            <option value="Titillium Web">Titillium Web</option>
+                            <option value="Ubuntu">Ubuntu</option>
+                            <option value="Work Sans">Work Sans</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <!-- Main Product UI -->
+            <div class="product-ui">
+                <div class="app-content">
+                    <!-- Header with more height -->
+                    <header class="app-header">
+                        <div class="header-content">
+                            <div class="header-left-group">
+                                <button class="back-btn">
+                                    <i data-lucide="chevron-left"></i>
+                                </button>
+                                <div class="logo-container">
+                                    <img id="header-logo" src="awebank-logo.png" alt="Logo">
+                                    <span id="header-brand-name">Awesome Bank</span>
+                                </div>
+                            </div>
+                            <div class="header-right-group">
+                                <button class="menu-btn">
+                                    <i data-lucide="ellipsis-vertical"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+    
+                    <!-- Main content with screens -->
+                    <main class="main-content">
+                        <!-- Screen 1: Mobile Number Input -->
+                        <div class="screen" id="mobile-input-screen" data-active="true">
+                            <div class="top-image">
+                                <img id="header-image" src="h2.png" alt="Logo">
+                            </div>
+                            <h1>Get instant loan approval</h1>
+                            <p class="subtitle">Enter your mobile number and OTP to link your accounts and share financial data</p>
+                            
+                            <div class="phone-input-group">
+                                <div class="country-code">+91</div>
+                                <input type="tel" 
+                                       id="phone-input" 
+                                       placeholder="Enter mobile number"
+                                       maxlength="10"
+                                       pattern="[0-9]*">
+                            </div>
+                            <div class="otp-input-group">
+                                <input type="tel" 
+                                       id="otp-input" 
+                                       placeholder="Enter OTP"
+                                       maxlength="6"
+                                       pattern="[0-9]*">
+                            </div>
+
+                            <!-- Add the new banner here -->
+                            <div class="aa-info-banner">
+                                <img id="om-onlylogo" src="om-onlylogo.png" alt="OneMoney">
+                                <span>Onemoney is India's largest and most-trusted account aggregator</span>
+                            </div>
+                        </div>
+
+                        <!-- Screen 2: Account Selection (your existing screen content) -->
+                        <div class="screen" id="account-selection-screen" data-active="false">
+                            <div class="discovered-accounts">
+                                <span>Showing 4 accounts discovered for:</span>
+                                <span class="phone-number">
+                                    +91 XXXXXX3210
+                                    <button class="edit-phone">edit</button>
+                                </span>
+                            </div>
+                            <h1 id="page-title">Select Accounts</h1>
+                            <p>Select the accounts you want to link:</p>
+
+                            <!-- Move the accounts counter here -->
+                            <div class="accounts-counter">
+                                <div class="pill">0 accounts selected</div>
+                            </div>
+
+                            <!-- Wrap each bank's content in a container -->
+                            <div class="bank-section">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="hdfc-logo.png" alt="HDFC Bank" class="bank-logo">
+                                        <span>HDFC Bank</span>
+                                    </div>
+                                    <button class="select-all">Select All</button> <!-- Added Select All button -->
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Savings Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX4001</div>
+                                        </div>
+                                    </label>
+        
+                                    <label class="account-option">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Current Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX4651</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+        
+                            <div class="bank-section">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="icici-logo.png" alt="ICICI Bank" class="bank-logo">
+                                        <span>ICICI Bank</span>
+                                    </div>
+                                    <button class="select-all">Select All</button> <!-- Added Select All button -->
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Savings Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX7890</div>
+                                        </div>
+                                    </label>
+        
+                                    <label class="account-option">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Current Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX3456</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="spacer"></div>
+                        </div>
+
+                        <!-- Add this inside main-content, after account-selection-screen -->
+                        <div class="screen" id="confirmation-screen" data-active="false">
+                            
+                            <div class="confirmation-details">
+                                <div class="selected-accounts-header">
+                                    <h2>Accounts Selected (2)</h2>
+                                    <button class="toggle-details">
+                                        <i data-lucide="chevron-up"></i>
+                                    </button>
+                                </div>
+                                <div class="selected-accounts-list">
+                                    <div class="selected-account-item">
+                                        <div class="bank-details">
+                                            <img src="hdfc-logo.png" alt="HDFC Bank" class="bank-logo">
+                                            <div class="account-info">
+                                                <div class="account-type">Savings Account</div>
+                                                <div class="account-number">XXXXXXXX4001</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="selected-account-item">
+                                        <div class="bank-details">
+                                            <img src="icici-logo.png" alt="ICICI Bank" class="bank-logo">
+                                            <div class="account-info">
+                                                <div class="account-type">Current Account</div>
+                                                <div class="account-number">XXXXXXXX3456</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <button class="link-more">
+                                    <i data-lucide="circle-plus"></i>
+                                    <span>Link More Accounts</span>
+                                </button>
+                            </div>
+                            <h1 class="consent-header">Please approve the following consents:</h1>
+                            <div class="consent-container">
+                                <label class="consent-option">
+                                    
+                                    <div class="consent-details">
+                                        <div class="consent-type">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" name="consent" checked>
+                                                <span class="checkbox-checkmark"></span>
+                                            </div>
+                                            <div class="consent-type-header">Loan Evaluation</div>
+                                        </div>
+                                        <div class="consent-description">Requesting your last 6 months Bank Statement (Fetched Once). Consent valid for 7 days and data life is 1 day.</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="consent-container">
+                                <label class="consent-option">
+                                    
+                                    <div class="consent-details">
+                                        <div class="consent-type">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" name="consent" checked>
+                                                <span class="checkbox-checkmark"></span>
+                                            </div>
+                                            <div class="consent-type-header">Loan Monitoring</div>
+                                        </div>
+                                        <div class="consent-description">Data will be refreshed twice a month for the next two years and data life is 1 day.</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="screen" id="success-screen" data-active="false">
+                            <div class="success-content">
+                                <img src="success.png" alt="Success" class="success-image">
+                                <h1>CONSENT APPROVED</h1>
+                                <p>Your data has been successfully shared with <span id="success-brand-name">Awesome Bank</span></p>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Bottom drawer stays the same but we'll update its button text dynamically -->
+                    <div class="bottom-drawer">
+                        <div class="scroll-indicator">
+                            <i data-lucide="chevron-down"></i>
+                        </div>
+                        <div class="button-group">
+                            <button class="proceed-button" disabled>
+                                Send OTP
+                            </button>
+                            <button class="reject-button" style="display: none;">
+                                Reject
+                            </button>
+                        </div>
+                        <div class="powered-by">
+                            <span>powered by</span>
+                            <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
