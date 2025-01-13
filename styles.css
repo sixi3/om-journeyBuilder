@@ -815,6 +815,9 @@ body {
     &::-webkit-scrollbar {
         display: none;
     }
+    margin-bottom: 16px;
+    padding-left: 0;
+    padding-right: 0;
     
     /* Hide scrollbar for IE, Edge and Firefox */
     -ms-overflow-style: none;  /* IE and Edge */
@@ -834,6 +837,7 @@ body {
     white-space: nowrap;
     font-size: 12px;
     font-weight: 400;
+    flex-shrink: 0;
     
 }
 
