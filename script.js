@@ -817,4 +817,84 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return labels[type] || type;
     }
+
+    // Consent drawer functionality
+    const consentDetailsButton = document.querySelector('.consent-details-button');
+    const consentDrawer = document.querySelector('.consent-drawer');
+    const drawerBackdrop = document.querySelector('.drawer-backdrop');
+    const closeDrawerButton = document.querySelector('.close-drawer');
+
+    function openDrawer() {
+        consentDrawer.classList.add('open');
+        drawerBackdrop.classList.add('open');
+        // Find and disable scroll on app-content instead of body
+        const appContent = document.querySelector('.app-content');
+        if (appContent) {
+            appContent.style.overflow = 'hidden';
+        }
+    }
+
+    function closeDrawer() {
+        consentDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('open');
+        // Re-enable scroll on app-content
+        const appContent = document.querySelector('.app-content');
+        if (appContent) {
+            appContent.style.overflow = '';
+        }
+    }
+
+    consentDetailsButton.addEventListener('click', openDrawer);
+    closeDrawerButton.addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+
+    // Add touch/swipe support for closing
+    let startY = 0;
+    let currentY = 0;
+
+    consentDrawer.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+    });
+
+    consentDrawer.addEventListener('touchmove', (e) => {
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        if (diff > 0) { // Only allow downward swipe
+            consentDrawer.style.transform = `translateY(${diff}px)`;
+        }
+    });
+
+    consentDrawer.addEventListener('touchend', () => {
+        const diff = currentY - startY;
+        if (diff > 100) { // If swiped down more than 100px
+            closeDrawer();
+        } else {
+            consentDrawer.style.transform = ''; // Reset position
+        }
+    });
+
+    function formatDate(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function updateDateRange() {
+        const dateRangeElements = document.querySelectorAll('.date-range');
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(endDate.getMonth() - 6);
+        
+        const formattedStartDate = startDate.toLocaleDateString('en-GB');
+        const formattedEndDate = endDate.toLocaleDateString('en-GB');
+        
+        dateRangeElements.forEach(element => {
+            element.textContent = `${formattedStartDate}-${formattedEndDate}`;
+        });
+    }
+
+    // Call this when the page loads
+    updateDateRange();
 });

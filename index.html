@@ -389,8 +389,11 @@
                                     </div>
                                 </label>
                             </div>
-                            
-                            
+                            <button class="consent-details-button">
+                                <span>Consent Details</span>
+                                <i data-lucide="chevron-right"></i>
+                            </button>
+                            <div class="spacer"></div>
                         </div>
                         <div class="screen" id="success-screen" data-active="false">
                             <div class="success-content">
@@ -419,9 +422,45 @@
                             <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
                         </div>
                     </div>
+                    <div class="drawer-backdrop"></div>
+                    <div class="consent-drawer">
+                        <div class="drawer-header">
+                            <h2>Consent Details</h2>
+                            <button class="close-drawer">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                        <div class="drawer-content">
+                            <div class="consent-section">
+                                <h3>Loan Evaluation</h3>
+                                <p>We request access to:</p>
+                                <ul>
+                                    <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary, Transactions)</li>
+                                    <li>Data will be fetched once</li>
+                                    <li>Consent valid for 7 days</li>
+                                    <li>Data life is 1 day</li>
+                                    <li>Your data will be stored</li>
+                                    <li>Account types: Deposits, Term Deposits</li>
+                                </ul>
+                            </div>
+                            <div class="consent-section">
+                                <h3>Loan Monitoring</h3>
+                                <p>We request access to:</p>
+                                <ul>
+                                    <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary)</li>
+                                    <li>Data will be refreshed twice a month</li>
+                                    <li>Consent valid for 2 years</li>
+                                    <li>Data life is 1 day</li>
+                                    <li>Your data will be stored</li>
+                                    <li>Account types: Deposits, Term Deposits</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
     </div>
     <script src="script.js"></script>
+    
 </body>
 </html>
