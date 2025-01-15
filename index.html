@@ -20,8 +20,8 @@
                 <span>Customisable UI</span>
             </div>
             
-            <div class="controls-grid">
-                <div class="control-group">
+            <div class="controls-row-1">
+                <div class="control-group col-1">
                     <label for="logo-input">Brand Logo:</label>
                     <div class="upload-container">
                         <div class="upload-button">
@@ -34,20 +34,21 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group col-2">
                     <label for="color-input">Brand Colour:</label>
                     <div class="color-input-wrapper">
                         <input type="color" id="color-input" value="#468584">
                         <span class="color-value">#468584</span>
                     </div>
                 </div>
-
-                <div class="control-group">
+            </div>
+            <div class="controls-row-2">
+                <div class="control-group col-3">
                     <label for="name-input">Brand Name:</label>
                     <input type="text" id="name-input" placeholder="Enter brand name">
                 </div>
 
-                <div class="control-group">
+                <div class="control-group col-4">
                     <label>Brand Font:</label>
                     <div class="select-wrapper">
                         <select class="font-select" id="font-input">
@@ -105,6 +106,18 @@
                             <option value="Titillium Web">Titillium Web</option>
                             <option value="Ubuntu">Ubuntu</option>
                             <option value="Work Sans">Work Sans</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group col-5">
+                    <label for="usecase-input">Your Use Case:</label>
+                    <div class="select-wrapper">
+                        <select class="usecase-select" id="usecase-input">
+                            <option value="loan-approval" selected>Loan Approval</option>
+                            <option value="portfolio-management">Portfolio Management</option>
+                            <option value="credit-line">Credit Line</option>
+                            <option value="credit-card">Credit Card</option>
                         </select>
                     </div>
                 </div>
@@ -359,9 +372,8 @@
                                 </button>
                             </div>
                             <h1 class="consent-header">Please approve the following consents:</h1>
-                            <div class="consent-container">
+                            <div class="consent-container" id="loan-approval-consent">
                                 <label class="consent-option">
-                                    
                                     <div class="consent-details">
                                         <div class="consent-type">
                                             <div class="checkbox-container">
@@ -373,10 +385,7 @@
                                         <div class="consent-description">Requesting your last 6 months Bank Statement (Fetched Once). Consent valid for 7 days and data life is 1 day.</div>
                                     </div>
                                 </label>
-                            </div>
-                            <div class="consent-container">
                                 <label class="consent-option">
-                                    
                                     <div class="consent-details">
                                         <div class="consent-type">
                                             <div class="checkbox-container">
@@ -385,7 +394,52 @@
                                             </div>
                                             <div class="consent-type-header">Loan Monitoring</div>
                                         </div>
-                                        <div class="consent-description">Data will be refreshed twice a month for the next two years and data life is 1 day.</div>
+                                        <div class="consent-description">Requesting your last 6 months Bank Statement (Fetched Twice a Month). Consent valid for 2 years and data life is 1 day.</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="consent-container" id="portfolio-management-consent" style="display: none;">
+                                <label class="consent-option">
+                                    <div class="consent-details">
+                                        <div class="consent-type">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" name="consent" checked>
+                                                <span class="checkbox-checkmark"></span>
+                                            </div>
+                                            <div class="consent-type-header">Portfolio Management</div>
+                                        </div>
+                                        <div class="consent-description">Requesting your last 2 years Bank Statement. The consent is valid for 2 years and data will be fetched four times a month. Data life is 1 month.</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="consent-container" id="credit-line-consent" style="display: none;">
+                                <label class="consent-option">
+                                    <div class="consent-details">
+                                        <div class="consent-type">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" name="consent" checked>
+                                                <span class="checkbox-checkmark"></span>
+                                            </div>
+                                            <div class="consent-type-header">Credit Line Approval</div>
+                                        </div>
+                                        <div class="consent-description">Requesting your financial statement once a month for the next two years. Data life is 1 week.</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="consent-container" id="credit-card-consent" style="display: none;">
+                                <label class="consent-option">
+                                    <div class="consent-details">
+                                        <div class="consent-type">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" name="consent" checked>
+                                                <span class="checkbox-checkmark"></span>
+                                            </div>
+                                            <div class="consent-type-header">Credit Card Application</div>
+                                        </div>
+                                        <div class="consent-description">Requesting your last 6 months Bank Statement(fetched once).Consent is valid for 7 days and data life is 1 day.</div>
                                     </div>
                                 </label>
                             </div>

@@ -897,4 +897,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Call this when the page loads
     updateDateRange();
+
+    const usecaseInput = document.getElementById('usecase-input');
+    const loanApprovalConsent = document.getElementById('loan-approval-consent');
+    const portfolioManagementConsent = document.getElementById('portfolio-management-consent');
+    const creditLineConsent = document.getElementById('credit-line-consent');
+    const creditCardConsent = document.getElementById('credit-card-consent');
+
+    // Function to update consent containers based on selected use case
+    function updateConsentContainers() {
+        const selectedUseCase = usecaseInput.value;
+
+        loanApprovalConsent.style.display = 'none';
+        portfolioManagementConsent.style.display = 'none';
+        creditLineConsent.style.display = 'none';
+        creditCardConsent.style.display = 'none';
+
+        // Update drawer content based on selected use case
+        const drawerContent = document.querySelector('.drawer-content'); // Reference to the drawer content
+        let content = '';
+
+        // Show the relevant consent container and update drawer content
+        switch (selectedUseCase) {
+            case 'loan-approval':
+                loanApprovalConsent.style.display = 'block';
+                content = `
+                    <div class="consent-section">
+                        <h3>Loan Evaluation</h3>
+                        <p>We request access to:</p>
+                        <ul>
+                            <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary, Transactions)</li>
+                            <li>Data will be fetched once</li>
+                            <li>Consent valid for 7 days</li>
+                            <li>Data life is 1 day</li>
+                            <li>Your data will be stored</li>
+                            <li>Account types: Deposits, Term Deposits</li>
+                        </ul>
+                    </div>
+                `;
+                break;
+            case 'portfolio-management':
+                portfolioManagementConsent.style.display = 'block';
+                content = `
+                    <div class="consent-section">
+                        <h3>Portfolio Management</h3>
+                        <p>We request access to:</p>
+                        <ul>
+                            <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary)</li>
+                            <li>Data will be fetched four times a month</li>
+                            <li>Consent valid for 2 years</li>
+                            <li>Data life is 1 month</li>
+                            <li>Your data will be stored</li>
+                            <li>Account types: Deposits, Term Deposits</li>
+                        </ul>
+                    </div>
+                `;
+                break;
+            case 'credit-line':
+                creditLineConsent.style.display = 'block';
+                content = `
+                    <div class="consent-section">
+                        <h3>Credit Line Approval</h3>
+                        <p>We request access to:</p>
+                        <ul>
+                            <li>Financial statement once a month for the next two years.</li>
+                            <li>Data life is 1 week.</li>
+                        </ul>
+                    </div>
+                `;
+                break;
+            case 'credit-card':
+                creditCardConsent.style.display = 'block';
+                content = `
+                    <div class="consent-section">
+                        <h3>Credit Card Application</h3>
+                        <p>We request access to:</p>
+                        <ul>
+                            <li>Last 6 months Bank Statement (fetched once).</li>
+                            <li>Consent valid for 7 days and data life is 1 day.</li>
+                        </ul>
+                    </div>
+                `;
+                break;
+        }
+
+        // Update the drawer content
+        drawerContent.innerHTML = content;
+    }
+
+    // Event listener for use case selection
+    usecaseInput.addEventListener('change', updateConsentContainers)``;
+
+    // Initialize consent containers on page load
+    updateConsentContainers();
 });
