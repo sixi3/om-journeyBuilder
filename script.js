@@ -903,6 +903,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const portfolioManagementConsent = document.getElementById('portfolio-management-consent');
     const creditLineConsent = document.getElementById('credit-line-consent');
     const creditCardConsent = document.getElementById('credit-card-consent');
+    const headline = document.getElementById('mobile-input-screen').querySelector('h1');
 
     // Function to update consent containers based on selected use case
     function updateConsentContainers() {
@@ -920,6 +921,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show the relevant consent container and update drawer content
         switch (selectedUseCase) {
             case 'loan-approval':
+                headline.textContent = 'Get Instant Loan Approval';
                 loanApprovalConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -937,6 +939,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'portfolio-management':
+                headline.textContent = 'View and manage your entire portfolio';
                 portfolioManagementConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -954,6 +957,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'credit-line':
+                headline.textContent = 'Get a credit line for your business';
                 creditLineConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -967,6 +971,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'credit-card':
+                headline.textContent = 'Instant Credit Card Approval';
                 creditCardConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
