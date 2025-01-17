@@ -37,22 +37,22 @@
                 <div class="control-group col-2">
                     <label for="color-input">Brand Colour:</label>
                     <div class="color-input-wrapper">
-                        <input type="color" id="color-input" value="#468584">
-                        <span class="color-value">#468584</span>
+                        <input type="color" id="color-input" value="#184C8F">
+                        <span class="color-value">#184C8F</span>
                     </div>
                 </div>
             </div>
             <div class="controls-row-2">
                 <div class="control-group col-3">
                     <label for="name-input">Brand Name:</label>
-                    <input type="text" id="name-input" placeholder="Enter brand name">
+                    <input type="text" id="name-input" placeholder="ICICI Bank">
                 </div>
 
                 <div class="control-group col-4">
                     <label>Brand Font:</label>
                     <div class="select-wrapper">
                         <select class="font-select" id="font-input">
-                            <option value="" disabled selected>Search fonts</option>
+                            <option value="" disabled selected>Search for your font</option>
                             <option value="Abel">Abel</option>
                             <option value="Archivo">Archivo</option>
                             <option value="Arimo">Arimo</option>
@@ -135,8 +135,8 @@
                                     <i data-lucide="chevron-left"></i>
                                 </button>
                                 <div class="logo-container">
-                                    <img id="header-logo" src="awebank-logo.png" alt="Logo">
-                                    <span id="header-brand-name">Awesome Bank</span>
+                                    <img id="header-logo" src="ICICI-logo.png" alt="Logo">
+                                    <span id="header-brand-name">ICICI Bank</span>
                                 </div>
                             </div>
                             <div class="header-right-group">
@@ -516,5 +516,54 @@
     </div>
     <script src="script.js"></script>
     
+    <!-- How It Works Popup -->
+    <div id="how-it-works-popup" class="popup" style="overflow-y: hidden;">
+        <div class="popup-content" style="max-width: 1000px;">
+            <div class="popup-header">
+                <div class="popup-title-container">
+                    <h2 class="popup-title">Welcome to</h2>
+                    <h2 class="popup-title">Onemoney AA Demo</h2>
+                </div>
+                <button class="close-popup">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="popup-body">
+                <p style="margin: 0;">An account aggregator is a framework introduced by RBI to enhance financial data sharing between businesses and their consumers. Onemoney is at the forefront of this fintech revolution with the largest network of financial information providers. <a href="https://sahamati.org.in/what-is-account-aggregator/" style="color: #277ae7;" target="_blank">Learn More</a></p>
+                <h3>Why Choose Onemoney?</h3>
+                <div class="grid-list">
+                    <div class="grid-item">
+                        <i data-lucide="network" class="icon-class"></i>
+                        <span><p class="grid-item-text">Largest Network of FIP's</p></span>
+                    </div>
+                    <div class="grid-item">
+                        <i data-lucide="chart-pie" class="icon-class"></i>
+                        <span><p class="grid-item-text" >57% Market Share</p></span>
+                    </div>
+                    <div class="grid-item">
+                        <i data-lucide="code" class="icon-class"></i>
+                            <span><p class="grid-item-text">Easy Integration</p></span>
+                    </div>
+                    <div class="grid-item">
+                        <i data-lucide="heart" class="icon-class"></i>
+                        <span><p class="grid-item-text">Superior UX</p></span>
+                    </div>
+                </div>
+                
+                <div class="info-banner">
+                    <i data-lucide="info" class="icon-class" style="color: #277ae7;"></i>
+                    <span><p>Our powerful UI provides users with a cohesive and fast data sharing experience. Use the controls to fine-tune our UI to your requirements.</p></span>
+                </div>
+            </div>
+            <div class="get-started-button-container">
+                <p style="display: flex; justify-content: center; align-items: center; margin: 8px; font-size: 12px; font-weight: 400; color: #939393; text-align: center;">Please note that all financial data is mocked and for demo purposes only</p>
+                <button class="get-started-button">Get Started</button>
+                <div class="powered-by">
+                    <span>powered by</span>
+                    <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

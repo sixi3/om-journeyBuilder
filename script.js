@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset file input
                 fileInput.value = '';
                 // Reset header logo to default
-                headerLogo.src = 'awebank-logo.png';
+                headerLogo.src = 'icici-logo.png';
                 // Hide file info
                 if (fileInfo) fileInfo.style.display = 'none';
                 // Reset upload button text
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle brand name changes
     nameInput.addEventListener('input', function(e) {
-        const brandName = e.target.value || 'Awesome Bank';
+        const brandName = e.target.value || 'ICICI Bank';
         headerBrandName.textContent = brandName;
         document.getElementById('success-brand-name').textContent = brandName;
         document.getElementById('page-title').textContent = 'Select Accounts';
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize with default color
-    const defaultColor = '#468584';
+    const defaultColor = '#AE282E';
     colorInput.value = defaultColor;
     colorValue.textContent = defaultColor;
     document.documentElement.style.setProperty('--brand-color', defaultColor);
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ].sort();
 
     // Initialize with Inter as default font
-    document.documentElement.style.setProperty('--selected-font', 'Inter');
+    document.documentElement.style.setProperty('--selected-font', 'Cabin');
     
     // Font selection handler
     const fontSelect = document.getElementById('font-input');
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         },
         active: function() {
-            applyFont('Montserrat');
+            applyFont('Cabin');
             console.log('Fonts loaded');
         }
     });
@@ -990,9 +990,62 @@ document.addEventListener('DOMContentLoaded', function() {
         drawerContent.innerHTML = content;
     }
 
-    // Event listener for use case selection
-    usecaseInput.addEventListener('change', updateConsentContainers)``;
+    // Ensure usecaseInput is defined before adding the event listener
+    if (usecaseInput) {
+        usecaseInput.addEventListener('change', updateConsentContainers);
+    }
 
     // Initialize consent containers on page load
     updateConsentContainers();
+
+    window.onload = function() {
+        const popup = document.getElementById('how-it-works-popup');
+        const backdrop = document.querySelector('.drawer-backdrop');
+        popup.style.display = 'block';
+        backdrop.classList.add('open'); // Fade in the backdrop
+        setTimeout(() => {
+            popup.querySelector('.popup-content').classList.add('show'); // Fade in the content
+        }, 10); // Small timeout to ensure the display is set before adding the class
+    };
+
+    const body = document.querySelector('body');
+        if (body) {
+            body.style.overflow = 'hidden';
+        }
+
+    // Close the popup when the close button is clicked
+    document.querySelector('.close-popup').onclick = function() {
+        const popup = document.getElementById('how-it-works-popup');
+        const popupContent = popup.querySelector('.popup-content');
+        const backdrop = document.querySelector('.drawer-backdrop');
+
+        popupContent.classList.remove('show'); // Start fade out for content
+        popupContent.classList.add('hide'); // Add hide class for fade out
+        backdrop.classList.remove('open'); // Fade out the backdrop
+
+        setTimeout(() => {
+            popup.style.display = 'none'; // Hide the popup after fade out
+            const body = document.querySelector('body');
+            if (body) {
+                body.style.overflow = 'auto';
+            }
+        }, 500); // Match the duration of the fade-out transition
+    };
+    document.querySelector('.get-started-button').onclick = function() {
+        const popup = document.getElementById('how-it-works-popup');
+        const popupContent = popup.querySelector('.popup-content');
+        const backdrop = document.querySelector('.drawer-backdrop');
+
+        popupContent.classList.remove('show'); // Start fade out for content
+        popupContent.classList.add('hide'); // Add hide class for fade out
+        backdrop.classList.remove('open'); // Fade out the backdrop
+
+        setTimeout(() => {
+            popup.style.display = 'none'; // Hide the popup after fade out
+            const body = document.querySelector('body');
+            if (body) {
+                body.style.overflow = 'auto';
+            }
+        }, 500); // Match the duration of the fade-out transition
+    };
 });
