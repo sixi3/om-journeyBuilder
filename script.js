@@ -1013,24 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body.style.overflow = 'hidden';
         }
 
-    // Close the popup when the close button is clicked
-    document.querySelector('.close-popup').onclick = function() {
-        const popup = document.getElementById('how-it-works-popup');
-        const popupContent = popup.querySelector('.popup-content');
-        const backdrop = document.querySelector('.drawer-backdrop');
-
-        popupContent.classList.remove('show'); // Start fade out for content
-        popupContent.classList.add('hide'); // Add hide class for fade out
-        backdrop.classList.remove('open'); // Fade out the backdrop
-
-        setTimeout(() => {
-            popup.style.display = 'none'; // Hide the popup after fade out
-            const body = document.querySelector('body');
-            if (body) {
-                body.style.overflow = 'auto';
-            }
-        }, 500); // Match the duration of the fade-out transition
-    };
+    
     document.querySelector('.get-started-button').onclick = function() {
         const popup = document.getElementById('how-it-works-popup');
         const popupContent = popup.querySelector('.popup-content');
@@ -1048,4 +1031,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 500); // Match the duration of the fade-out transition
     };
+
+    // Add this code to handle the color input wrapper click
+    const colorInputWrapper = document.getElementById('color-input').parentElement; // Get the parent wrapper of the color input
+    colorInputWrapper.addEventListener('click', function() {
+        document.getElementById('color-input').click(); // Trigger the click on the hidden color input
+    });
 });

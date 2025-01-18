@@ -331,6 +331,7 @@ body {
 /* Customization Controls Styles */
 .customization-controls {
     width: 100%;
+    max-width: 1024px;
     background: white;
     border-radius: 16px;
     font-family: 'DM Sans', sans-serif;
@@ -1106,6 +1107,14 @@ body {
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
+.popup-image {
+    height: 64px;
+    width: auto;
+    object-fit: contain;
+    margin-right: 16px;
+}
+
+
 .popup-content {
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
@@ -1134,7 +1143,6 @@ body {
 }
 
 .popup-title {
-    font-size: 24px;
     font-weight: 600;
     margin: 0;
 }
@@ -1153,6 +1161,10 @@ body {
     font-size: 16px;
     font-weight: 500;
     font-family: 'DM Sans', sans-serif;
+}
+
+.get-started-button:hover {
+    background-color: #01562b;
 }
 
 .lang-option:hover {
@@ -2065,11 +2077,11 @@ body {
 }
 
 .popup-content h2 {
-    font-size: 24px; /* Default size for larger screens */
+    font-size: 32px; /* Default size for larger screens */
 }
 
 .popup-content p {
-    font-size: 16px; /* Default size for larger screens */
+    font-size: 18px; /* Default size for larger screens */
 }
 
 .info-banner {
@@ -2126,6 +2138,12 @@ body {
 
     .popup-content p {
         font-size: 12px; /* Smaller size for mobile */
+    }
+
+    .popup-image {
+        height: 32px;
+        width: auto;
+        margin-right: 0;
     }
 
     .info-banner p {
