@@ -856,12 +856,13 @@ body {
     width: 100%;
     overflow-x: auto;
     min-height: max-content;
+    padding-left: 0;
+    padding-right: 0;
+    flex-shrink: 0;
 
     &::-webkit-scrollbar {
         display: none;
     }
-    padding-left: 0;
-    padding-right: 0;
 }
 
 .filter-tab {
