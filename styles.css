@@ -2161,3 +2161,21 @@ body {
     transition: opacity 0.3s;
     opacity: 0.9;
 }
+
+.contact-icon {
+    margin-right: 4px;
+    width: 16px;
+    height: 16px;
+}
+
+.contact-header-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: start;
+}
+
+.contact-icon svg {
+    width: 16px;
+    height: 16px;
+}
