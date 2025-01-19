@@ -1078,4 +1078,46 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set the flag to true after adding the listener
         isListenerAdded = true;
     }
+
+    const getInTouchPill = document.getElementById('get-in-touch-pill');
+    const contactInfo = getInTouchPill.querySelector('.contact-info');
+    const closeButton = contactInfo.querySelector('.close-contact-info');
+
+    getInTouchPill.addEventListener('click', function() {
+        const isVisible = contactInfo.style.display === 'block';
+        contactInfo.style.display = isVisible ? 'none' : 'block';
+    });
+
+    closeButton.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent the pill from collapsing
+        contactInfo.style.display = 'none'; // Hide the contact info
+    });
+
+    // Copy button functionality
+    const copyButtons = contactInfo.querySelectorAll('.copy-button');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the pill from collapsing
+            const textToCopy = this.getAttribute('data-text');
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.textContent = 'Copied!';
+                tooltip.className = 'tooltip'; // Add a class for styling
+                document.body.appendChild(tooltip);
+                
+                // Position the tooltip
+                const rect = this.getBoundingClientRect();
+                tooltip.style.left = `${rect.left + window.scrollX}px`;
+                tooltip.style.top = `${rect.top + window.scrollY - 30}px`; // Adjust position above the button
+                
+                // Show the tooltip and remove it after 2 seconds
+                setTimeout(() => {
+                    tooltip.remove();
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+    });
 });
