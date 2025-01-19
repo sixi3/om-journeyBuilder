@@ -1037,4 +1037,45 @@ document.addEventListener('DOMContentLoaded', function() {
     colorInputWrapper.addEventListener('click', function() {
         document.getElementById('color-input').click(); // Trigger the click on the hidden color input
     });
+
+    // Handle Send OTP button click
+    const sendOtpButton = document.querySelector('.proceed-button');
+    const customerInput = document.getElementById('phone-input');
+
+    // Replace with your Google Apps Script URL
+    const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwT17orum0gqOtbZp2hD3kGrzmvpY5-KEonOF4D6-Mv09nMF7wWBBTbLQ7bs9kUaEF-/exec';
+
+    // Flag to check if the event listener is already added
+    let isListenerAdded = false;
+
+    if (!isListenerAdded) {
+        sendOtpButton.addEventListener('click', () => {
+            const mobileNumber = customerInput.value;
+            console.log(`Mobile Number: ${mobileNumber}`); // Log the mobile number
+
+            // Send the mobile number to Google Sheets
+            fetch(googleSheetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `mobileNumber=${encodeURIComponent(mobileNumber)}`,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Set the flag to true after adding the listener
+        isListenerAdded = true;
+    }
 });
