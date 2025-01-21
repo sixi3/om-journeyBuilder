@@ -3,7 +3,7 @@
 :root {
     --border-color: #E5E7EB;
     --iphone-aspect-ratio: calc(693 / 320);
-    --brand-font: 'DM Sans', sans-serif;
+    --brand-font: 'Cabin', sans-serif;
     --brand-color: #468584;
     --brand-rgb: 114, 45, 170;
 }
@@ -11,7 +11,7 @@
 body {
     margin: 0;
     padding: 32px 32px;
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Cabin', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #feffff;
     min-height: 100vh;
     display: flex;
@@ -1015,7 +1015,7 @@ body {
 
 .popup-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
@@ -1023,6 +1023,7 @@ body {
     box-shadow: 0 4px 24px rgba(94, 93, 93, 0.9);   
     opacity: 0; /* Start hidden */
     transition: opacity 0.2s ease-in-out; /* Smooth transition */
+    font-family: 'DM Sans', sans-serif;
 }
 
 .popup-content.show {
@@ -1582,8 +1583,8 @@ body {
     align-items: center;
     gap: 4px;
     margin-top: auto;
-    padding: 12px;
-    background-color: rgb(244, 244, 244, 0.5);
+    padding: 12px 8px;
+    background: #edffe9;
     border-radius: 8px;
     color: #4B5563;
     font-family: 'DM Sans', sans-serif;
@@ -2139,6 +2140,7 @@ body {
     color: darkgreen; /* Change to your preferred color */
     transition: color 0.3s;
     margin-top: 4px;
+    padding: 0;
 }
 
 .copy-button svg {
@@ -2178,4 +2180,65 @@ body {
 .contact-icon svg {
     width: 16px;
     height: 16px;
+}
+
+.active-users-counter {
+    text-align: center;
+    margin: 16px 0 16px 0;
+}
+
+.active-users-counter h3 {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    margin: 8px 0 0;
+}
+
+.user-count {
+    font-size: 24px;
+    font-weight: bold;
+    color: darkgreen;
+    transition: all 0.1s ease-in-out;
+}
+
+.account-type-container {
+    margin-top: 24px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: #999;
+}
+
+.account-type-list {
+    display: grid; /* Enable grid layout */
+    grid-template-columns: repeat(2, 1fr); /* Create 2 columns */
+    gap: 8px; /* Space between grid items */
+    margin-top: 8px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.account-type-container h3 {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0 0 8px 0;
+    
+}
+
+
+.account-type-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    padding: 12px 8px;
+    border-radius: 8px;
+    color: darkslategray;
+    background-color: #f9fafb;
+}
+
+.account-type-list.single-column {
+    grid-template-columns: 1fr; /* Single column layout */
 }

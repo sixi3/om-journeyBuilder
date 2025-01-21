@@ -152,10 +152,10 @@
                         <!-- Screen 1: Mobile Number Input -->
                         <div class="screen" id="mobile-input-screen" data-active="true">
                             <div class="top-image">
-                                <img id="header-image" src="h2.png" alt="Logo">
+                                <img id="header-image" src="h4.png" alt="Logo">
                             </div>
-                            <h1>Get Instant Loan Approval</h1>
-                            <p class="subtitle">Verify your mobile number to link your accounts and share financial data</p>
+                            <h1>Login to Onemoney</h1>
+                            <p class="subtitle">Login to link your accounts and share financial data</p>
                             
                             <div class="phone-input-group">
                                 <div class="country-code">+91</div>
@@ -173,11 +173,30 @@
                                        pattern="[0-9]*">
                             </div>
 
+                            <div class="account-type-container">
+                                <h3>Accounts requested:</h3>    
+                                <div class="account-type-list">
+                                    <div class="account-type-item">
+                                        <i data-lucide="landmark" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                        <span>Bank Accounts</span>
+                                    </div>
+                                    <div class="account-type-item">
+                                        <i data-lucide="hand-coins" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                        <span>Mutual Funds</span>   
+                                    </div>
+                                    <div class="account-type-item">
+                                        <i data-lucide="chart-candlestick" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                        <span>Equity</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Add the new banner here -->
                             <div class="aa-info-banner">
                                 <img id="om-onlylogo" src="om-onlylogo.png" alt="OneMoney">
                                 <span>Onemoney is India's largest and most-trusted account aggregator</span>
                             </div>
+                            <div class="spacer"></div>
                         </div>
 
                         <!-- Screen 2: Account Selection (your existing screen content) -->
@@ -531,21 +550,26 @@
                 <h3>Why Choose Onemoney?</h3>
                 <div class="grid-list">
                     <div class="grid-item">
-                        <i data-lucide="network" class="icon-class"></i>
-                        <span><p class="grid-item-text">Largest Network of FIP's</p></span>
+                        <i data-lucide="medal" class="icon-class"></i>
+                        <span><p class="grid-item-text">India's first and largest AA</p></span>
                     </div>
                     <div class="grid-item">
                         <i data-lucide="chart-pie" class="icon-class"></i>
                         <span><p class="grid-item-text" >57% Market Share</p></span>
                     </div>
                     <div class="grid-item">
-                        <i data-lucide="code" class="icon-class"></i>
-                            <span><p class="grid-item-text">Easy Integration</p></span>
+                        <i data-lucide="network" class="icon-class"></i>
+                            <span><p class="grid-item-text">Largest network of FIPs</p></span>
                     </div>
                     <div class="grid-item">
-                        <i data-lucide="heart" class="icon-class"></i>
+                        <i data-lucide="smile" class="icon-class"></i>
                         <span><p class="grid-item-text">Superior UX</p></span>
                     </div>
+                </div>
+
+                <div class="active-users-counter">
+                    <h3>Accounts Linked:</h3>
+                    <div id="user-count" class="user-count">0</div>
                 </div>
                 
                 <div class="info-banner">

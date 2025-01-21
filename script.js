@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.app-header').style.background = `linear-gradient(135deg, ${color} 0%, ${darkenedColor} 100%)`;
         document.querySelector('.proceed-button').style.background = `linear-gradient(135deg, ${color} 0%, ${darkenedColor} 100%)`;
         document.querySelector('.link-more').style.color = color;
+        
 
         const selectedAccount = document.querySelector('.account-option.selected');
         if (selectedAccount) {
@@ -317,16 +318,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const accountScreen = document.getElementById('account-selection-screen');
     const rejectButton = document.querySelector('.reject-button');
     const poweredBy = document.querySelector('.powered-by');
-        poweredBy.style.visibility = 'visible';
-        poweredBy.style.opacity = '1';
     let currentScreen = Array.from(document.querySelectorAll('[data-active]'))
         .find(screen => screen.dataset.active === 'true')?.id || 'mobile-input-screen';
 
     if (currentScreen === 'mobile-input-screen') {
         proceedButton.textContent = 'Send OTP';
         proceedButton.disabled = !phoneInput?.value || phoneInput.value.length !== 10;
-        poweredBy.style.visibility = 'hidden';
-        poweredBy.style.opacity = '0';
         
     } else if (currentScreen === 'account-selection-screen') {
         proceedButton.textContent = 'Proceed';
@@ -354,8 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const backButton = document.querySelector('.back-btn');
-    backButton.style.visibility = 'hidden';
-    backButton.style.opacity = '0';
 
     function hideOtpInput() {
         const otpInputGroup = document.querySelector('.otp-input-group');
@@ -605,8 +600,6 @@ document.addEventListener('DOMContentLoaded', function() {
             currentScreen = 'mobile-input-screen';
             proceedButton.textContent = 'Send OTP';
             hideOtpInput();
-            backButton.style.visibility = 'hidden';
-            backButton.style.opacity = '0';
 
             const poweredBy = document.querySelector('.powered-by');
             poweredBy.style.visibility = 'hidden';
@@ -921,7 +914,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show the relevant consent container and update drawer content
         switch (selectedUseCase) {
             case 'loan-approval':
-                headline.textContent = 'Get Instant Loan Approval';
                 loanApprovalConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -939,7 +931,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'portfolio-management':
-                headline.textContent = 'View and manage your entire portfolio';
                 portfolioManagementConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -957,7 +948,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'credit-line':
-                headline.textContent = 'Get a credit line for your business';
                 creditLineConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -971,7 +961,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 break;
             case 'credit-card':
-                headline.textContent = 'Instant Credit Card Approval';
                 creditCardConsent.style.display = 'block';
                 content = `
                     <div class="consent-section">
@@ -1005,6 +994,7 @@ document.addEventListener('DOMContentLoaded', function() {
         backdrop.classList.add('open'); // Fade in the backdrop
         setTimeout(() => {
             popup.querySelector('.popup-content').classList.add('show'); // Fade in the content
+            animateUserCount(5000009); // Start the animation
         }, 10); // Small timeout to ensure the display is set before adding the class
     };
 
@@ -1120,4 +1110,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Function to animate the user count with more pronounced easing
+    function animateUserCount(finalNumber) {
+        const userCountElement = document.getElementById('user-count');
+        let currentNumber = 0;
+        const duration = 1000; // Total duration of the animation in milliseconds
+        const startTime = performance.now();
+
+        function updateCount(timestamp) {
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1); // Normalize progress to [0, 1]
+
+            // Easing function: quartic ease in and out
+            const easedProgress = progress < 0.5 
+                ? 8 * progress * progress * progress * progress // Ease in
+                : 1 - Math.pow(-2 * progress + 2, 4) / 2; // Ease out
+
+            currentNumber = Math.floor(easedProgress * finalNumber);
+            userCountElement.textContent = currentNumber.toLocaleString(); // Format number with commas
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCount);
+            } else {
+                userCountElement.textContent = finalNumber.toLocaleString(); // Ensure it ends at the final number
+            }
+        }
+
+        requestAnimationFrame(updateCount);
+    }
+
 });
+
