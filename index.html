@@ -109,18 +109,6 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="control-group col-5">
-                    <label for="usecase-input">Your Use Case:</label>
-                    <div class="select-wrapper">
-                        <select class="usecase-select" id="usecase-input">
-                            <option value="loan-approval" selected>Loan Approval</option>
-                            <option value="portfolio-management">Portfolio Management</option>
-                            <option value="credit-line">Credit Line</option>
-                            <option value="credit-card">Credit Card</option>
-                        </select>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="container">
@@ -173,28 +161,10 @@
                                        pattern="[0-9]*">
                             </div>
 
-                            <div class="account-type-container">
-                                <h3>Accounts requested:</h3>    
-                                <div class="account-type-list">
-                                    <div class="account-type-item">
-                                        <i data-lucide="landmark" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
-                                        <span>Bank Accounts</span>
-                                    </div>
-                                    <div class="account-type-item">
-                                        <i data-lucide="hand-coins" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
-                                        <span>Mutual Funds</span>   
-                                    </div>
-                                    <div class="account-type-item">
-                                        <i data-lucide="chart-candlestick" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
-                                        <span>Equity</span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Add the new banner here -->
                             <div class="aa-info-banner">
                                 <img id="om-onlylogo" src="om-onlylogo.png" alt="OneMoney">
-                                <span>Onemoney is India's largest and most-trusted account aggregator</span>
+                                <span>Onemoney is India's largest and most-trusted platform to share financial data</span>
                             </div>
                             <div class="spacer"></div>
                         </div>
@@ -358,7 +328,7 @@
                             
                             <div class="confirmation-details">
                                 <div class="selected-accounts-header">
-                                    <h2>Accounts Selected (2)</h2>
+                                    <h2>Selected Accounts (2)</h2>
                                     <button class="toggle-details">
                                         <i data-lucide="chevron-up"></i>
                                     </button>
@@ -533,10 +503,27 @@
                 </div>
             </div>
     </div>
+    <div class="get-in-touch-pill" id="get-in-touch-pill">
+        <div class="contact-header-container">
+            <i data-lucide="phone-call" class="contact-icon"></i>
+            <span>Get in touch</span>
+        </div>
+        <div class="contact-info" style="display: none;">
+            <button class="close-contact-info" aria-label="Close">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="contact-info-content">
+                <p>Email: support@onemoney.in <button class="copy-button" data-text="support@onemoney.in"><i data-lucide="copy"></i></button></p>
+            </div> 
+            <div class="contact-info-content">
+                <p>Phone: +91 7306725734 <button class="copy-button" data-text="+91 7306725734"><i data-lucide="copy"></i></button></p>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
     
-    <!-- How It Works Popup -->
-    <div id="how-it-works-popup" class="popup" style="overflow-y: hidden;">
+    <!-- Updated How It Works Popup -->
+    <div id="how-it-works-popup" class="popup">
         <div class="popup-content" style="max-width: 1000px;">
             <div class="popup-header">
                 <div class="popup-title-container">
@@ -546,7 +533,39 @@
                 <img src="popup-image.png" alt="popup image" class="popup-image">
             </div>
             <div class="popup-body">
-                <p style="margin: 0;">Account Aggregator is a framework introduced by RBI to enhance financial data sharing between businesses and their consumers. Onemoney is at the forefront of this fintech revolution with the largest network of financial information providers. <a href="https://sahamati.org.in/what-is-account-aggregator/" style="color: #277ae7;" target="_blank">Learn More</a></p>
+                <p style="margin: 0;">
+                    Account Aggregator is a framework introduced by RBI to enhance financial data sharing between businesses 
+                    and their consumers. <a href="https://sahamati.org.in/what-is-account-aggregator/" style="color: #277ae7;" target="_blank">Learn More</a>
+                </p>
+                <div class="popup-usecase">
+                    <label for="usecase-input">Your Use Case:</label>
+                    <div class="select-wrapper">
+                        <select class="usecase-select" id="usecase-input">
+                            <option value="loan-approval" selected>Loan Approval</option>
+                            <option value="portfolio-management">Portfolio Management</option>
+                            <option value="credit-line">Credit Line</option>
+                            <option value="credit-card">Credit Card</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="account-type-container">
+                    <h3>Account types requested:</h3>    
+                    <div class="account-type-list">
+                        <div class="account-type-item">
+                            <i data-lucide="landmark" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Bank Accounts</span>
+                        </div>
+                        <div class="account-type-item">
+                            <i data-lucide="hand-coins" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Mutual Funds</span>   
+                        </div>
+                        <div class="account-type-item">
+                            <i data-lucide="chart-candlestick" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Equity</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="why-onemoney-container">
                 <h3>Why Choose Onemoney?</h3>
                 <div class="grid-list">
                     <div class="grid-item">
@@ -562,45 +581,24 @@
                             <span><p class="grid-item-text">Largest network of FIPs</p></span>
                     </div>
                     <div class="grid-item">
-                        <i data-lucide="smile" class="icon-class"></i>
-                        <span><p class="grid-item-text">Superior UX</p></span>
+                        <i data-lucide="route" class="icon-class"></i>
+                        <span><p class="grid-item-text">Industry-leading UX</p></span>
                     </div>
                 </div>
-
                 <div class="active-users-counter">
                     <h3>Accounts Linked:</h3>
                     <div id="user-count" class="user-count">0</div>
                 </div>
-                
-                <div class="info-banner">
-                    <i data-lucide="info" class="icon-class" style="color: #277ae7;"></i>
-                    <span><p>Our powerful UI provides users with a cohesive and fast data sharing experience. Use the controls to fine-tune our UI to your requirements.</p></span>
-                </div>
             </div>
             <div class="get-started-button-container">
-                <p style="display: flex; justify-content: center; align-items: center; margin: 8px; font-size: 12px; font-weight: 400; color: #939393; text-align: center;">Please note that all financial data is mocked and for demo purposes only</p>
+                <p style="display: flex; justify-content: center; align-items: center; margin: 8px; font-size: 12px; font-weight: 400; color: #939393; text-align: center;">
+                    Please note that all financial data is mocked and for demo purposes only
+                </p>
                 <button class="get-started-button">Get Started</button>
                 <div class="powered-by">
                     <span>powered by</span>
                     <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="get-in-touch-pill" id="get-in-touch-pill">
-        <div class="contact-header-container">
-            <i data-lucide="phone-call" class="contact-icon"></i>
-            <span>Get in touch</span>
-        </div>
-        <div class="contact-info" style="display: none;">
-            <button class="close-contact-info" aria-label="Close">
-                <i data-lucide="x"></i>
-            </button>
-            <div class="contact-info-content">
-                <p>Email: support@onemoney.in <button class="copy-button" data-text="support@onemoney.in"><i data-lucide="copy"></i></button></p>
-            </div> 
-            <div class="contact-info-content">
-                <p>Phone: +91 7306725734 <button class="copy-button" data-text="+91 7306725734"><i data-lucide="copy"></i></button></p>
             </div>
         </div>
     </div>

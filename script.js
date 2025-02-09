@@ -237,8 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSelectedCount() {
-        const selectedCount = document.querySelectorAll('.account-option input[type="checkbox"]:checked').length;
-        const totalCount = document.querySelectorAll('.account-option').length;
+        const selectedCount = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
+            .filter(checkbox => getComputedStyle(checkbox.closest('.account-option')).display !== 'none').length;
+        const totalCount = Array.from(document.querySelectorAll('.account-option'))
+            .filter(option => getComputedStyle(option).display !== 'none').length;
         const pill = document.querySelector('.accounts-counter .pill');
         const prevCount = parseInt(pill.querySelector('.pill-number-animate')?.textContent || '0');
         
@@ -755,27 +757,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeFilterTabs();
 
-    function updateSelectedAccountsList(selectedAccounts) {
-        const accountsList = document.querySelector('.selected-accounts-list');
+    /**
+     * Returns the human‑readable label for a given account type.
+     */
+    function getTypeLabel(type) {
+        const labels = {
+            bank: 'Bank Accounts',
+            mf: 'Mutual Funds',
+            equity: 'Equity',
+            other: 'Other Accounts'
+        };
+        return labels[type] || type;
+    }
 
-         // Update the header count
-        const selectedAccountsHeader = document.querySelector('.selected-accounts-header h2');
-        selectedAccountsHeader.textContent = `Accounts Selected (${selectedAccounts.length})`;
-        
-        // Group accounts by type using the data-type attribute from the original selection
+    /**
+     * Updates the confirmation details based on the accounts selected in the
+     * account‑selection screen. Instead of showing the account type (which
+     * was set to 'bank', 'mf', or 'equity'), we now display the actual bank name.
+     * Also updates the header count to reflect the total selected accounts.
+     */
+    function updateSelectedAccountsList() {
+        // Get the allowed account types based on the current use case.
+        const allowedTypes = getAllowedAccountTypes().map(t => t.toLowerCase());
+
+        // Retrieve the selected accounts from the account‑selection screen by checking which checkboxes are checked.
+        const selectedAccountElements = Array.from(
+            document.querySelectorAll('.account-option input[type="checkbox"]:checked')
+        ).map(checkbox => checkbox.closest('.account-option'));
+
+        // Map the account options to an object containing the details we need.
+        const selectedAccounts = selectedAccountElements
+            .map(option => {
+                // Get the account type; if not present, get the text from the .account-type element.
+                const type = option.getAttribute('data-type') || (option.querySelector('.account-type')?.textContent || '').toLowerCase();
+                return {
+                    type,
+                    // Retrieve the bank details from the parent bank section.
+                    bankName: option.closest('.bank-section').querySelector('.bank-info span').textContent,
+                    bankLogo: option.closest('.bank-section').querySelector('.bank-info img').src,
+                    number: option.querySelector('.account-number').textContent
+                };
+            })
+            // Only include accounts whose type is allowed for the current use case.
+            .filter(account => allowedTypes.includes(account.type.toLowerCase()));
+
+        // Group the selected accounts by type (if needed for display grouping).
         const groupedAccounts = selectedAccounts.reduce((acc, account) => {
-            // Find the original account option by iterating through all options
-            const accountOption = Array.from(document.querySelectorAll('.account-option[data-type]'))
-                .find(option => option.querySelector('.account-number').textContent === account.number);
-            
-            const type = accountOption?.dataset.type || 'other';
-            
-            if (!acc[type]) acc[type] = [];
-            acc[type].push(account);
+            const typeKey = account.type.toLowerCase();
+            if (!acc[typeKey]) acc[typeKey] = [];
+            acc[typeKey].push(account);
             return acc;
         }, {});
 
-        // Create sections for each type
+        // Build the HTML for each group.
+        const accountsList = document.querySelector('.selected-accounts-list');
         const html = Object.entries(groupedAccounts).map(([type, accounts]) => `
             <div class="account-type-section" data-type="${type}">
                 <div class="type-header">
@@ -788,7 +823,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="bank-details">
                                 <img src="${account.bankLogo}" alt="${account.bankName}" class="bank-logo">
                                 <div class="account-info">
-                                    <div class="account-type">${account.type}</div>
+                                    <!-- Display the bank name rather than the type -->
+                                    <div class="bank-name">${account.bankName}</div>
                                     <div class="account-number">${account.number.replace(/Account No: /, '')}</div>
                                 </div>
                             </div>
@@ -797,6 +833,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `).join('');
+
+        // Update the confirmation header with the total count of selected accounts.
+        const headerEl = document.querySelector('.selected-accounts-header h2');
+        if (headerEl) {
+            headerEl.textContent = `Selected Accounts (${selectedAccounts.length})`;
+        }
 
         accountsList.innerHTML = html;
     }
@@ -898,6 +940,151 @@ document.addEventListener('DOMContentLoaded', function() {
     const creditCardConsent = document.getElementById('credit-card-consent');
     const headline = document.getElementById('mobile-input-screen').querySelector('h1');
 
+    // Global state for currently selected use case.
+    let currentUseCase = usecaseInput.value; // e.g., "loan-approval" by default
+
+    // Helper: returns allowed account types based on the current use case.
+    function getAllowedAccountTypes() {
+        switch (currentUseCase) {
+            case 'loan-approval':
+            case 'credit-card':
+                return ['bank'];
+            case 'portfolio-management':
+                return ['bank', 'mf', 'equity'];
+            case 'credit-line':
+                return ['mf', 'equity'];
+            default:
+                return ['bank', 'mf', 'equity'];
+        }
+    }
+
+    /**
+     * Updates the account options (the .account-option elements) 
+     * based on the current use case.
+     */
+    function updateAccountOptionsByUseCase() {
+        const allowedTypes = getAllowedAccountTypes();
+
+        // Loop through each account option and update its display.
+        document.querySelectorAll('.account-option').forEach(option => {
+            const type = option.getAttribute('data-type');
+            if (allowedTypes.includes(type)) {
+                option.style.display = 'flex';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+
+        // Also update each bank section so that empty sections are hidden.
+        document.querySelectorAll('.bank-section').forEach(section => {
+            const accountOptions = Array.from(section.querySelectorAll('.account-option'));
+            const hasVisible = accountOptions.some(o => getComputedStyle(o).display !== 'none');
+            section.style.display = hasVisible ? 'block' : 'none';
+        });
+
+        // Output which account types are active.
+        const activeAccountTypes = new Set();
+        document.querySelectorAll('.account-option').forEach(option => {
+            if (getComputedStyle(option).display !== 'none') {
+                activeAccountTypes.add(option.getAttribute('data-type'));
+            }
+        });
+        console.log("Active account types:", Array.from(activeAccountTypes).join(', '));
+    }
+
+    /**
+     * Updates the account-type container in the mobile-input screen so that it
+     * only shows the active account types.
+     */
+    function updateAccountTypeContainer() {
+        const allowedTypes = getAllowedAccountTypes();
+        // Mapping for icon name and display label for each account type.
+        const typeMapping = {
+            bank: {
+                icon: 'landmark',
+                label: 'Bank Accounts'
+            },
+            mf: {
+                icon: 'hand-coins',
+                label: 'Mutual Funds'
+            },
+            equity: {
+                icon: 'chart-candlestick',
+                label: 'Equity'
+            }
+        };
+
+        const container = document.querySelector('.account-type-container .account-type-list');
+        if (container) {
+            let html = '';
+            allowedTypes.forEach(type => {
+                const mapping = typeMapping[type];
+                if (mapping) {
+                    html += `<div class="account-type-item">
+                                <i data-lucide="${mapping.icon}" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                <span>${mapping.label}</span>
+                             </div>`;
+                }
+            });
+            container.innerHTML = html;
+            // Re-initialize lucide icons so the new icons render correctly.
+            lucide.createIcons();
+        }
+    }
+
+    /**
+     * Updates the filter tabs in the account selection screen so that only 
+     * allowed account-type filters are visible.
+     */
+    function updateFilterTabs() {
+        const allowedTypes = getAllowedAccountTypes();
+        const filterTabsContainer = document.querySelector('.filter-tabs-container');
+
+        // If there is only one allowed account type, hide the filter tabs container.
+        if (allowedTypes.length <= 1) {
+            filterTabsContainer.style.display = 'none';
+            return;
+        }
+
+        // Otherwise make sure the container is visible.
+        filterTabsContainer.style.display = 'block';
+
+        // Now update each filter-tab as before.
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            const filter = tab.getAttribute('data-filter');
+            // Always show the "all" tab.
+            if (filter === 'all') {
+                tab.style.display = 'inline-block';
+            } else {
+                tab.style.display = allowedTypes.includes(filter) ? 'inline-block' : 'none';
+            }
+        });
+    }
+
+    /**
+     * When the use case changes, update the global state, refresh consent containers,
+     * update the account options, the mobile account type container, and the filter tabs.
+     */
+    usecaseInput.addEventListener('change', function() {
+        currentUseCase = this.value;
+        updateConsentContainers(); // Updates consent texts & container.
+        updateAccountOptionsByUseCase();
+        updateAccountTypeContainer();
+        updateFilterTabs();
+
+        // Reset filter tabs to "all" for consistency.
+        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+        const allTab = document.querySelector('.filter-tab[data-filter="all"]');
+        if (allTab) {
+            allTab.classList.add('active');
+        }
+    });
+
+    // On initial load, update account options, account type container and filter tabs.
+    updateAccountOptionsByUseCase();
+    updateAccountTypeContainer();
+    updateFilterTabs();
+
     // Function to update consent containers based on selected use case
     function updateConsentContainers() {
         const selectedUseCase = usecaseInput.value;
@@ -994,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         backdrop.classList.add('open'); // Fade in the backdrop
         setTimeout(() => {
             popup.querySelector('.popup-content').classList.add('show'); // Fade in the content
-            animateUserCount(5000009); // Start the animation
+            animateUserCount(52834276); // Start the animation
         }, 10); // Small timeout to ensure the display is set before adding the class
     };
 
@@ -1072,6 +1259,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const getInTouchPill = document.getElementById('get-in-touch-pill');
     const contactInfo = getInTouchPill.querySelector('.contact-info');
     const closeButton = contactInfo.querySelector('.close-contact-info');
+    
 
     getInTouchPill.addEventListener('click', function() {
         const isVisible = contactInfo.style.display === 'block';
