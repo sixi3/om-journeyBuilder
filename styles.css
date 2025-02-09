@@ -2247,11 +2247,17 @@ body {
 
 .account-type-list {
     display: grid; /* Enable grid layout */
-    grid-template-columns: repeat(2, 1fr); /* Create 2 columns */
+    grid-template-columns: repeat(2, 1fr); /* Create 2 columns by default */
     gap: 8px; /* Space between grid items */
     margin-top: 8px;
     border-radius: 8px;
     margin-bottom: 16px;
+}
+
+@media (min-width: 750px) {
+    .account-type-list {
+        grid-template-columns: repeat(3, 1fr); /* Switch to 4 columns on wider screens */
+    }
 }
 
 .account-type-container h3 {
@@ -2265,6 +2271,7 @@ body {
 
 .account-type-item {
     display: flex;
+    max-width: 240px;
     align-items: center;
     gap: 8px;
     font-size: 12px;
