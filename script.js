@@ -323,29 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentScreen = Array.from(document.querySelectorAll('[data-active]'))
         .find(screen => screen.dataset.active === 'true')?.id || 'mobile-input-screen';
 
-    if (currentScreen === 'mobile-input-screen') {
-        proceedButton.textContent = 'Send OTP';
-        proceedButton.disabled = !phoneInput?.value || phoneInput.value.length !== 10;
-        
-    } else if (currentScreen === 'account-selection-screen') {
-        proceedButton.textContent = 'Proceed';
-        proceedButton.disabled = false;
-        
-        // Show back button and powered by
-        const backButton = document.querySelector('.back-btn');
-        backButton.style.visibility = 'visible';
-        backButton.style.opacity = '1';
-
-        const poweredBy = document.querySelector('.powered-by');
-        poweredBy.style.visibility = 'visible';
-        poweredBy.style.opacity = '1';
-    } else if (currentScreen === 'confirmation-screen') {
-        proceedButton.textContent = 'Approve Consent';
-        proceedButton.disabled = false;
-        initializeAccordion();
-        rejectButton.style.display = 'flex';
-    }
-
     phoneInput.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '');
         removeError(this);
@@ -397,55 +374,44 @@ document.addEventListener('DOMContentLoaded', function() {
     function switchScreen(fromScreen, toScreen, isForward = true) {
         if (!fromScreen || !toScreen) return;
         
-        // Add minimum height constraint to container
+        // Add a minimum height constraint to the container if needed.
         const container = document.querySelector('.container');
         if (container) {
-            container.style.minHeight = '700px'; // Adjust this value as needed
+            container.style.minHeight = '700px';
         }
         
+        // Slide the current screen out.
         fromScreen.classList.add(isForward ? 'slide-out-left' : 'slide-out-right');
-        
         setTimeout(() => {
             fromScreen.dataset.active = 'false';
             fromScreen.classList.remove(isForward ? 'slide-out-left' : 'slide-out-right');
             fromScreen.style.display = 'none';
             
+            // Prepare the target screen
             toScreen.style.display = 'flex';
             toScreen.dataset.active = 'true';
             toScreen.classList.add(isForward ? 'slide-in-right' : 'slide-in-left');
             
-            // Update current screen before updating buttons
-            currentScreen = toScreen.id;
-            
-            // Update button states
-            const proceedButton = document.querySelector('.proceed-button');
+            // Update the reject button state based on the upcoming screen.
             const rejectButton = document.querySelector('.reject-button');
-            
             if (toScreen.id === 'confirmation-screen') {
-                proceedButton.textContent = 'Approve Consent';
                 rejectButton.style.display = 'flex';
                 setTimeout(() => {
                     rejectButton.classList.add('visible');
-                    // Initialize accordion after screen transition completes
+                    // Initialize accordion elements after the transition.
                     initializeAccordion();
-                }, 300); // Match the transition duration
+                }, 300);
             } else {
-                // Remove visible class first, then hide after transition
                 rejectButton.classList.remove('visible');
                 setTimeout(() => {
                     rejectButton.style.display = 'none';
-                }, 300); // Match the transition duration
-                
-                if (toScreen.id === 'mobile-input-screen') {
-                    proceedButton.textContent = 'Send OTP';
-                } else if (toScreen.id === 'account-selection-screen') {
-                    proceedButton.textContent = 'Proceed';
-                }
+                }, 300);
             }
             
             setTimeout(() => {
                 toScreen.classList.remove(isForward ? 'slide-in-right' : 'slide-in-left');
                 
+                // Optional: update scroll and layout adjustments for main content.
                 const mainContent = document.querySelector('.main-content');
                 if (mainContent) {
                     if (toScreen.id === 'mobile-input-screen') {
@@ -478,168 +444,136 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 }
+                // Call updateProceedButton after the screen transition is complete.
+                updateProceedButton();
             }, 300);
         }, 300);
     }
 
+    // Global array of screens and an index to track the current screen
+    const screensArray = [
+        document.getElementById('mobile-input-screen'),
+        document.getElementById('bank-selection-screen'),
+        document.getElementById('account-selection-screen'),
+        document.getElementById('confirmation-screen'),
+        document.getElementById('success-screen')
+    ];
+    let currentScreenIndex = 0;
+
     proceedButton.addEventListener('click', function() {
-        if (currentScreen === 'mobile-input-screen') {
-            if (!phoneInput.value) {
-                showError(phoneInput, 'Please enter your mobile number');
-                return;
-            }
-            
-            if (!isValidIndianMobileNumber(phoneInput.value)) {
-                showError(phoneInput, 'Please enter a valid 10-digit mobile number');
-                return;
-            }
-
-            const otpInputGroup = document.querySelector('.otp-input-group');
-            const otpInput = document.getElementById('otp-input');
-            
-            if (!otpInputGroup.classList.contains('show')) {
-                // First click - Show OTP input
-                otpInputGroup.style.display = 'flex';
-                otpInputGroup.offsetHeight; // Force reflow
-                otpInputGroup.classList.add('show');
-                this.textContent = 'Verify OTP';
-                this.disabled = true;
+        const currentScreen = screensArray[currentScreenIndex];
+        
+        // Perform validations based on the current screen
+        switch (currentScreen.id) {
+            case 'mobile-input-screen': {
+                if (!phoneInput.value) {
+                    showError(phoneInput, 'Please enter your mobile number');
+                    return;
+                }
+                if (!isValidIndianMobileNumber(phoneInput.value)) {
+                    showError(phoneInput, 'Please enter a valid 10-digit mobile number');
+                    return;
+                }
                 
-                // Focus on OTP input
-                otpInput.focus();
-                
-                // Simulate OTP sent (in real app, this would be an API call)
-                console.log('Sending OTP for number:', phoneInput.value);
-                return;
+                const otpInputGroup = document.querySelector('.otp-input-group');
+                const otpInput = document.getElementById('otp-input');
+                if (!otpInputGroup.classList.contains('show')) {
+                    // First click – show the OTP input
+                    otpInputGroup.style.display = 'flex';
+                    otpInputGroup.offsetHeight; // Force reflow
+                    otpInputGroup.classList.add('show');
+                    this.textContent = 'Verify OTP';
+                    this.disabled = true;
+                    otpInput.focus();
+                    // Simulate sending OTP (in real life, you'd call an API)
+                    console.log('Sending OTP for number:', phoneInput.value);
+                    return;
+                }
+                // Second click – verify OTP
+                if (otpInput.value.length !== 6) {
+                    showError(otpInput, 'Please enter a valid 6-digit OTP');
+                    return;
+                }
+                break;
             }
-
-            // Second click - Verify OTP
-            if (otpInput.value.length === 6) {
-                // Switch to account selection screen
-                switchScreen(
-                    document.getElementById('mobile-input-screen'),
-                    document.getElementById('account-selection-screen'),
-                    true
-                );
-                
-                currentScreen = 'account-selection-screen';
-                this.textContent = 'Proceed';
-                
-                // Update phone display
-                const phoneDisplay = document.querySelector('.phone-number');
-                const maskedNumber = phoneInput.value.replace(/(\d{6})(\d{4})/, 'XXXXXX$2');
-                phoneDisplay.innerHTML = `+91 ${maskedNumber}<button class="edit-phone">edit</button>`;
-                
-                // Show back button and powered by
-                const backButton = document.querySelector('.back-btn');
-                backButton.style.visibility = 'visible';
-                backButton.style.opacity = '1';
-
-                const poweredBy = document.querySelector('.powered-by');
-                poweredBy.style.visibility = 'visible';
-                poweredBy.style.opacity = '1';
-            } else {
-                showError(otpInput, 'Please enter a valid 6-digit OTP');
+            case 'bank-selection-screen': {
+                // Example validation: require at least one bank to have been selected
+                if (selectedBankNames.size === 0) {
+                    alert('Please select at least one bank to proceed');
+                    return;
+                }
+                break;
             }
-        } else if (currentScreen === 'account-selection-screen') {
-            const selectedAccounts = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
-                .map(checkbox => {
-                    const accountOption = checkbox.closest('.account-option');
-                    const bankSection = accountOption.closest('.bank-section');
-                    const bankInfo = bankSection.querySelector('.bank-info');
-                    return {
-                        bankName: bankInfo.querySelector('span').textContent,
-                        bankLogo: bankInfo.querySelector('img').src,
-                        type: accountOption.querySelector('.account-type').textContent,
-                        number: accountOption.querySelector('.account-number').textContent
-                    };
-                });
-
-            if (selectedAccounts.length === 0) {
-                alert('Please select at least one account to proceed');
-                return;
+            case 'account-selection-screen': {
+                // Gather the selected accounts and ensure there is at least one
+                const selectedAccounts = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
+                    .map(checkbox => {
+                        const accountOption = checkbox.closest('.account-option');
+                        const bankSection = accountOption.closest('.bank-section');
+                        const bankInfo = bankSection.querySelector('.bank-info');
+                        return {
+                            bankName: bankInfo.querySelector('span').textContent,
+                            bankLogo: bankInfo.querySelector('img').src,
+                            type: accountOption.querySelector('.account-type').textContent,
+                            number: accountOption.querySelector('.account-number').textContent
+                        };
+                    });
+                
+                if (selectedAccounts.length === 0) {
+                    alert('Please select at least one account to proceed');
+                    return;
+                }
+                updateSelectedAccountsList(selectedAccounts);
+                break;
             }
-
-            updateSelectedAccountsList(selectedAccounts);
-
-            switchScreen(
-                document.getElementById('account-selection-screen'),
-                document.getElementById('confirmation-screen'),
-                true
-            );
-            currentScreen = 'confirmation-screen';
-            
-            this.textContent = 'Approve Consent';
-        } else if (currentScreen === 'confirmation-screen') {
-            const confirmationScreen = document.getElementById('confirmation-screen');
-            const successScreen = document.getElementById('success-screen');
-            switchScreen(confirmationScreen, successScreen, true);
-            currentScreen = 'success-screen';
-            
-            // Hide the proceed and reject buttons
-            const proceedButton = document.querySelector('.proceed-button');
-            const rejectButton = document.querySelector('.reject-button');
-            proceedButton.style.display = 'none';
-            rejectButton.style.display = 'none';
-            
-            // Hide the back button
-            backButton.style.visibility = 'hidden';
+            // Additional validations for other screens can be added here if needed.
+        }
+        
+        // If validations pass, move to the next screen if available in the array.
+        if (currentScreenIndex < screensArray.length - 1) {
+            const fromScreen = screensArray[currentScreenIndex];
+            const toScreen = screensArray[++currentScreenIndex];
+            switchScreen(fromScreen, toScreen, true);
         }
     });
 
-    backButton.addEventListener('click', function() {
-        if (currentScreen === 'confirmation-screen') {
-            const confirmationScreen = document.getElementById('confirmation-screen');
-            const accountSelectionScreen = document.getElementById('account-selection-screen');
-            switchScreen(confirmationScreen, accountSelectionScreen, false);
-            currentScreen = 'account-selection-screen';
-            proceedButton.textContent = 'Proceed';
-        }
-        else if (currentScreen === 'account-selection-screen') {
-            const accountSelectionScreen = document.getElementById('account-selection-screen');
-            const mobileInputScreen = document.getElementById('mobile-input-screen');
-            switchScreen(accountSelectionScreen, mobileInputScreen, false);
-            currentScreen = 'mobile-input-screen';
-            proceedButton.textContent = 'Send OTP';
-            hideOtpInput();
-
-            const poweredBy = document.querySelector('.powered-by');
-            poweredBy.style.visibility = 'hidden';
-            poweredBy.style.opacity = '0';
+    backButton.addEventListener('click', function () {
+        if (currentScreenIndex > 0) {
+            const fromScreen = screensArray[currentScreenIndex];
+            const targetScreen = screensArray[currentScreenIndex - 1];
+            switchScreen(fromScreen, targetScreen, false);
+            currentScreenIndex--;
         }
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('edit-phone')) {
-            switchScreen(
-                document.getElementById('account-selection-screen'),
-                document.getElementById('mobile-input-screen'),
-                false
+            const currentScreen = screensArray[currentScreenIndex];
+            const targetIndex = screensArray.findIndex(
+                (screen) => screen.id === 'mobile-input-screen'
             );
-            currentScreen = 'mobile-input-screen';
-            
-            proceedButton.textContent = 'Send OTP';
-            proceedButton.disabled = phoneInput.value.length !== 10;
-
-            hideOtpInput();
-
-            backButton.style.visibility = 'hidden';
-            backButton.style.opacity = '0';
-            
+            if (targetIndex !== -1 && currentScreen.id !== 'mobile-input-screen') {
+                switchScreen(currentScreen, screensArray[targetIndex], false);
+                currentScreenIndex = targetIndex;
+                hideOtpInput();
+            }
         }
     });
 
-    document.querySelector('.link-more').addEventListener('click', function(e) {
+    document.querySelector('.link-more').addEventListener('click', function (e) {
         e.preventDefault();
-        e.stopPropagation(); // Stop event bubbling
-        
-        const confirmationScreen = document.getElementById('confirmation-screen');
-        const accountSelectionScreen = document.getElementById('account-selection-screen');
-        
-        if (confirmationScreen.dataset.active === 'true') {
-            switchScreen(confirmationScreen, accountSelectionScreen, false);
-            currentScreen = 'account-selection-screen';
-            proceedButton.textContent = 'Proceed';
+        e.stopPropagation();
+
+        const currentScreen = screensArray[currentScreenIndex];
+        // Ensure that the action only applies if we're on the confirmation screen.
+        if (currentScreen.id === 'confirmation-screen') {
+            const targetIndex = screensArray.findIndex(
+                (screen) => screen.id === 'account-selection-screen'
+            );
+            if (targetIndex !== -1) {
+                switchScreen(currentScreen, screensArray[targetIndex], false);
+                currentScreenIndex = targetIndex;
+            }
         }
     });
 
@@ -683,41 +617,6 @@ document.addEventListener('DOMContentLoaded', function() {
             proceedButton.disabled = true;
         }
     });
-
-    function updateButtons() {
-        const proceedButton = document.querySelector('.proceed-button');
-        const rejectButton = document.querySelector('.reject-button');
-
-        if (currentScreen === 'confirmation-screen') {
-            proceedButton.textContent = 'Approve Consent';
-            rejectButton.style.display = 'flex';
-        } else {
-            rejectButton.style.display = 'none';
-            if (currentScreen === 'mobile-input-screen') {
-                proceedButton.textContent = 'Send OTP';
-            } else if (currentScreen === 'account-selection-screen') {
-                proceedButton.textContent = 'Proceed';
-            }
-        }
-    }
-
-    document.querySelector('.reject-button').addEventListener('click', function() {
-        if (currentScreen === 'confirmation-screen') {
-            // Handle rejection - you can customize this based on your needs
-            console.log('Consent rejected');
-            // Optionally navigate back or show a confirmation dialog
-            const confirmationScreen = document.getElementById('confirmation-screen');
-            const accountSelectionScreen = document.getElementById('account-selection-screen');
-            switchScreen(confirmationScreen, accountSelectionScreen, false);
-            currentScreen = 'account-selection-screen';
-        }
-    });
-
-    // Also ensure the min-height is set on initial load
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.minHeight = '700px'; // Adjust this value as needed
-    }
 
     function initializeFilterTabs() {
         const accountTypes = {
@@ -1327,6 +1226,351 @@ document.addEventListener('DOMContentLoaded', function() {
 
         requestAnimationFrame(updateCount);
     }
+
+    /**
+     * Populates the bank list with the top 30 Indian banks.
+     */
+    const banks = [
+        { name: "State Bank of India", logo: "sbi-logo.svg" },
+        { name: "HDFC Bank", logo: "hdfc-logo.svg" },
+        { name: "ICICI Bank", logo: "icici-logo.svg" },
+        { name: "Axis Bank", logo: "axis-logo.svg" },
+        { name: "Kotak Mahindra Bank", logo: "kotak-logo.svg" },
+        { name: "Bank of Baroda", logo: "bob-logo.svg" },
+        { name: "Punjab National Bank", logo: "landmark" },
+        { name: "Canara Bank", logo: "landmark" },
+        { name: "Union Bank of India", logo: "landmark" },
+        { name: "Central Bank of India", logo: "landmark" },
+        { name: "Bank of India", logo: "landmark" },
+        { name: "Indian Bank", logo: "landmark" },
+        { name: "IDBI Bank", logo: "landmark" },
+        { name: "UCO Bank", logo: "landmark" },
+        { name: "Punjab & Sind Bank", logo: "landmark" },
+        { name: "Indian Overseas Bank", logo: "landmark" },
+        { name: "Bank of Maharashtra", logo: "landmark" },
+        { name: "Yes Bank", logo: "landmark" },
+        { name: "IDFC First Bank", logo: "landmark" },
+        { name: "IndusInd Bank", logo: "landmark" },
+        { name: "RBL Bank", logo: "landmark" },
+        { name: "Federal Bank", logo: "landmark" },
+        { name: "South Indian Bank", logo: "landmark" },
+        { name: "DCB Bank", logo: "landmark" },
+        { name: "Karur Vysya Bank", logo: "landmark" },
+        { name: "City Union Bank", logo: "landmark" },
+        { name: "Bandhan Bank", logo: "landmark" },
+        { name: "Dhanlaxmi Bank", logo: "landmark" },
+        { name: "Jammu & Kashmir Bank", logo: "landmark" },
+        { name: "Kalyan Janata Bank", logo: "landmark" }
+    ];
+
+    // Global set to keep track of selected banks across renders.
+    let selectedBankNames = new Set();
+
+    // Global set to keep track of banks that have already been rendered
+    let displayedBanks = new Set();
+
+    function renderBankList(banksToRender) {
+        const bankListContainer = document.querySelector('.bank-list');
+        if (!bankListContainer) return;
+
+        // Clear any existing bank items
+        bankListContainer.innerHTML = '';
+
+        // If no banks are found, display the "Not found" view and clear the global set
+        if (banksToRender.length === 0) {
+            bankListContainer.innerHTML = `
+                <div class="not-found">
+                    <span>No banks found!</span>
+                </div>
+            `;
+            displayedBanks.clear();
+            return;
+        }
+
+        // Render each bank item
+        banksToRender.forEach(bank => {
+            const bankItem = document.createElement('div');
+            // If this bank wasn't already displayed, add the pop-in animation
+            if (!displayedBanks.has(bank.name)) {
+                bankItem.classList.add('bank-item', 'pop-in');
+            } else {
+                bankItem.classList.add('bank-item');
+            }
+
+            // Build the bank item HTML (using full bank name; CSS will handle truncation)
+            if (bank.logo === "landmark") {
+                bankItem.innerHTML = `
+                    <div class="bank-logo-container">
+                        <i data-lucide="landmark" class="bank-logo" style="color: var(--brand-color);"></i>
+                    </div>
+                    <span>${bank.name}</span>
+                `;
+            } else {
+                bankItem.innerHTML = `
+                    <div class="bank-logo-container">
+                        <img src="${bank.logo}" alt="${bank.name} Logo" class="bank-logo">
+                    </div>
+                    <span>${bank.name}</span>
+                `;
+            }
+
+            // If this bank is selected, add the "selected" class
+            if (selectedBankNames.has(bank.name)) {
+                bankItem.classList.add('selected');
+            }
+
+            bankItem.addEventListener('click', function () {
+                if (selectedBankNames.has(bank.name)) {
+                    selectedBankNames.delete(bank.name);
+                    bankItem.classList.remove('selected');
+                } else {
+                    selectedBankNames.add(bank.name);
+                    bankItem.classList.add('selected');
+                }
+                updateSelectedBankList();
+            });
+            
+            bankListContainer.appendChild(bankItem);
+
+            // Remove the pop-in class for new items after the animation is complete (400ms)
+            if (!displayedBanks.has(bank.name)) {
+                setTimeout(() => {
+                    bankItem.classList.remove('pop-in');
+                }, 400);
+            }
+        });
+
+        // Update the global set with the names of banks currently being rendered
+        displayedBanks = new Set(banksToRender.map(bank => bank.name));
+
+        // Reinitialize Lucide icons for dynamically added elements
+        lucide.createIcons();
+
+        // Refresh the proceed button state after updating the selected bank list.
+        updateProceedButton();
+    }
+    
+    // Initially display only the top 6 banks.
+    renderBankList(banks.slice(0, 6));
+    
+    // Add bank search functionality.
+    const bankSearchInput = document.getElementById('bank-search');
+    const searchInputGroup = document.querySelector('.search-input-group');
+
+    /**
+     * Updates the search icon with a fade-out then fade-in animation.
+     */
+    function updateSearchIcon() {
+        const fadeOutTime = 200; // milliseconds for fade out duration
+        const fadeInTime = 200;  // milliseconds for fade in duration
+        const iconName = bankSearchInput.value.trim().length > 0 ? 'x' : 'search';
+        const existingIcon = searchInputGroup.querySelector('.search-icon');
+
+        if (existingIcon) {
+            if (existingIcon.getAttribute('data-lucide') !== iconName) {
+                // Add fade-out class to trigger CSS transition
+                existingIcon.classList.add('fade-out');
+                setTimeout(() => {
+                    // Replace the icon after fade-out completed
+                    existingIcon.outerHTML = `<i data-lucide="${iconName}" class="search-icon fade-in" style="cursor: ${iconName === 'x' ? 'pointer' : 'default'}"></i>`;
+                    lucide.createIcons();
+                    // Remove fade-in class after the fade in animation is done
+                    setTimeout(() => {
+                        const icon = searchInputGroup.querySelector('.search-icon');
+                        if (icon) {
+                            icon.classList.remove('fade-in');
+                        }
+                    }, fadeInTime);
+                }, fadeOutTime);
+            }
+        } else {
+            // If no icon exists, simply insert it with a fade-in effect
+            searchInputGroup.insertAdjacentHTML('beforeend', `<i data-lucide="${iconName}" class="search-icon fade-in" style="cursor: ${iconName === 'x' ? 'pointer' : 'default'}"></i>`);
+            lucide.createIcons();
+            setTimeout(() => {
+                const icon = searchInputGroup.querySelector('.search-icon');
+                if (icon) {
+                    icon.classList.remove('fade-in');
+                }
+            }, fadeInTime);
+        }
+    }
+
+    /**
+     * Listen for input changes in the search field.
+     * Filter the bank list accordingly and update the icon.
+     */
+    if (bankSearchInput) {
+        bankSearchInput.addEventListener('input', function () {
+            const searchVal = bankSearchInput.value.toLowerCase();
+            const bankListHeader = document.querySelector('.bank-list-header h2');
+
+            if (!searchVal) {
+                renderBankList(banks.slice(0, 6));
+                if (bankListHeader) bankListHeader.textContent = 'Popular Banks';
+            } else {
+                const filteredBanks = banks.filter(bank =>
+                    bank.name.toLowerCase().includes(searchVal)
+                );
+                renderBankList(filteredBanks);
+                if (bankListHeader) bankListHeader.textContent = 'Results';
+            }
+            updateSearchIcon();
+        });
+    }
+
+    /**
+     * Event delegation on the search input group.
+     * When the x icon is clicked, clear the search field and ensure it remains focused.
+     */
+    if (searchInputGroup) {
+        searchInputGroup.addEventListener('click', function (e) {
+            const clickedIcon = e.target.closest('.search-icon');
+            if (clickedIcon && bankSearchInput.value.trim().length > 0) {
+                console.log('X icon clicked, clearing search');
+                bankSearchInput.value = '';
+                bankSearchInput.dispatchEvent(new Event('input'));
+                updateSearchIcon();
+                bankSearchInput.focus(); // Keep the search input active after clearing.
+            }
+        });
+    }
+
+    function updateSelectedBankList() {
+        const selectedBankListContainer = document.querySelector('.selected-bank-list');
+        if (!selectedBankListContainer) return;
+
+        // Clear the container
+        selectedBankListContainer.innerHTML = '';
+
+        if (selectedBankNames.size === 0) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'no-bank-selected';
+            placeholder.textContent = 'No banks selected';
+            selectedBankListContainer.appendChild(placeholder);
+        } else {
+            // Loop through the global banks array to find details for each selected bank.
+            banks.forEach(bank => {
+                if (selectedBankNames.has(bank.name)) {
+                    let bankLogoHTML = '';
+                    if (bank.logo === "landmark") {
+                        bankLogoHTML = `<i data-lucide="landmark" class="bank-logo" style="color: var(--brand-color);"></i>`;
+                    } else {
+                        bankLogoHTML = `<img src="${bank.logo}" alt="${bank.name} Logo">`;
+                    }
+
+                    const selectedItem = document.createElement('div');
+                    selectedItem.classList.add('selected-bank-item');
+                    selectedItem.innerHTML = `
+                        <div class="bank-logo-container">
+                            ${bankLogoHTML}
+                        </div>
+                        <span>${bank.name}</span>
+                        <button class="remove-bank">
+                            <i data-lucide="x"></i>
+                        </button>
+                    `;
+                    
+                    // Attach event listener to remove the bank selection.
+                    const removeBtn = selectedItem.querySelector('.remove-bank');
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent bubbling to parent elements.
+                        selectedBankNames.delete(bank.name);
+                        // Remove selected class from bank list items (if currently rendered)
+                        document.querySelectorAll('.bank-list .bank-item').forEach(item => {
+                            const itemName = item.querySelector('span').textContent.trim();
+                            if (itemName === bank.name) {
+                                item.classList.remove('selected');
+                            }
+                        });
+                        updateSelectedBankList();
+                    });
+
+                    selectedBankListContainer.appendChild(selectedItem);
+                }
+            });
+        }
+
+        // Reinitialize Lucide icons for dynamic elements.
+        lucide.createIcons();
+
+        // Refresh the proceed button state after updating the selected bank list.
+        updateProceedButton();
+    }
+
+    // Call updateSelectedBankList when the DOM is ready
+    updateSelectedBankList();
+
+    const selectedBankList = document.querySelector('.selected-bank-list');
+    const selectedBanksTitle = document.querySelector('.selected-banks h2');
+
+    // Function to recalculate and update the header count by counting only bank items.
+    function updateSelectedBanksCount() {
+        // Select only elements with the 'bank-item' class inside the list.
+        const count = selectedBankList.querySelectorAll('.selected-bank-item').length;
+        selectedBanksTitle.textContent = `Selected Banks (${count})`;
+    }
+    
+    // MutationObserver will automatically update the count on any changes (e.g. items added or removed)
+    const observer = new MutationObserver(() => {
+        updateSelectedBanksCount();
+    });
+
+    observer.observe(selectedBankList, { childList: true });
+    
+    // Update count on initial load
+    updateSelectedBanksCount();
+
+    // Helper function to update the proceed button text based on the active screen
+    function updateProceedButton() {
+        const activeScreen = document.querySelector('.screen[data-active="true"]');
+        const proceedButton = document.querySelector('.proceed-button');
+        if (!activeScreen || !proceedButton) return;
+
+        switch (activeScreen.id) {
+            case 'mobile-input-screen':
+                // For the mobile input screen, show "Send OTP" and disable the button until a valid phone number is entered.
+                proceedButton.textContent = 'Send OTP';
+                const phoneInput = document.getElementById('phone-input');
+                // Enable only if the phone input is exactly 10 digits (adjust your validation as needed)
+                proceedButton.disabled = !(phoneInput && phoneInput.value.trim().length === 10);
+                break;
+            
+            case 'bank-selection-screen':
+                // For the bank selection screen, show "Fetch Accounts" and disable until at least one bank is selected.
+                proceedButton.textContent = 'Fetch Accounts';
+                // (Assuming selected banks are rendered as elements with the class ".selected-bank-item")
+                const selectedBanks = document.querySelectorAll('.selected-bank-item');
+                proceedButton.disabled = selectedBanks.length === 0;
+                break;
+            
+            case 'account-selection-screen':
+                // For the account selection screen, show "Link Accounts" and disable until at least one account is checked.
+                proceedButton.textContent = 'Proceed';
+                break;
+            
+            case 'confirmation-screen':
+                // For the confirmation screen, show "Approve and Share Data"
+                // and disable the button until all the required consents are checked.
+                proceedButton.textContent = 'Approve Consent';
+                break;
+            
+            default:
+                proceedButton.textContent = 'Continue';
+                proceedButton.disabled = false;
+                break;
+        }
+    }
+
+    // Example: call updateProceedButton on page load or whenever a screen transition occurs.
+    updateProceedButton();
+
+    // You might also want to add event listeners to input elements so that
+    // as soon as a user enters a valid phone number or selects an account,
+    // the state of the button is updated. For instance:
+    document.getElementById('phone-input')?.addEventListener('input', updateProceedButton);
+
+    // Similarly, if selecting banks or accounts triggers events, ensure those events also call updateProceedButton.
 
 });
 

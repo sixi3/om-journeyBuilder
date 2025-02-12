@@ -790,6 +790,28 @@ body {
     animation: slideFromTop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Ensure the search input group is positioned relatively */
+.search-input-group {
+    position: relative;
+}
+
+/* Give the search input some right padding so that its content doesn't cover the icon */
+.search-input-group input[type="text"] {
+    width: 100%;
+    padding-right: 2.5rem; /* Adjust this value as necessary */
+}
+
+/* Position the search icon absolutely within the group */
+.search-input-group .search-icon {
+    position: absolute;
+    right: 10px;         /* Adjust the right spacing */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;         /* Make sure the icon is above the input field */
+    pointer-events: auto; /* Ensure the icon receives click events */
+    cursor: pointer;
+}
+
 /* Update animations */
 @keyframes slideFromTop {
     from {
@@ -2342,4 +2364,271 @@ body::after {
     100% {
         background-position: 0% 50%;
     }
+}
+
+.bank-selection-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.bank-selection-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.bank-selection-header p {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    margin: 0;
+    color: #686868;
+}
+
+/* Updated search input container styles to prevent content spilling */
+.search-input-group {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;  /* Adjust spacing as needed */
+    box-sizing: border-box;
+}
+
+.search-input-group input::placeholder {
+    color: #8b9096;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.search-input-group:hover {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.search-input-group input {
+    width: 100%;
+    box-sizing: border-box;  /* Ensure padding and border are included in the 100% width */
+    padding: 12px 45px 12px 15px; /* Extra right padding for the icon */
+    font-size: 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 4px;
+    outline: none;
+}
+
+.search-input-group input:focus {
+    border-color: var(--brand-color);
+}
+
+/* Ensure the search input group is positioned relatively */
+.search-input-group {
+    position: relative;
+}
+
+/* Give the search input some right padding so that its content doesn't cover the icon */
+.search-input-group input[type="text"] {
+    width: 100%;
+    padding-right: 2.5rem; /* Adjust this value as necessary */
+}
+
+/* Position the search icon absolutely within the group */
+.search-input-group .search-icon {
+    position: absolute;
+    right: 16px;         /* Adjust the right spacing */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;         /* Make sure the icon is above the input field */
+    pointer-events: auto; /* Ensure the icon receives click events */
+    cursor: pointer;
+}
+
+/* Position the search icon on the right edge */
+.search-input-group .search-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 18px;
+    color: var(--brand-color);
+    placeholder-color: var(--brand-color);
+}
+
+.selected-banks h2 {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.selected-bank-list {
+    display: flex;
+    align-items: center;           /* vertically centers the items */
+    gap: 10px;                     /* spacing between items */
+    overflow-x: auto;              /* enables horizontal scrolling */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-top: 12px;        
+}
+
+
+.selected-bank-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background-color: white;
+    flex: 0 0 auto; 
+}
+
+.selected-bank-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.selected-bank-info img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.remove-bank {
+    background: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+}
+
+.remove-bank:hover {
+    color: rgb(154, 38, 38);
+}
+
+.remove-bank svg {
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    
+}
+
+.bank-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px; /* Adjust the gap as needed */
+}
+
+.bank-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    text-align: center;
+    height: 64px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: border 0.2s ease-in-out;
+    min-width: 0;
+}
+
+.bank-item:hover {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.bank-item.selected {
+    border: 2px solid var(--brand-color);
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;
+}
+
+.bank-logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.bank-list-header h2{
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 16px 0 12px 0;
+    color: #686868;
+
+}
+
+.no-bank-selected {
+    color: #686868;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.not-found {
+    color: rgb(154, 38, 38);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.bank-item span {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ensure the search icon transitions its opacity */
+.search-icon {
+    transition: opacity 0.2s ease;
+}
+
+/* Fade out effect */
+.fade-out {
+    opacity: 0;
+}
+
+/* Fade in effect using a keyframes animation */
+.fade-in {
+    opacity: 0;
+    animation: fadeInAnimation 0.2s forwards;
+}
+
+@keyframes fadeInAnimation {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.77);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.10);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Only elements with the .pop-in class will animate */
+.bank-item.pop-in {
+    animation: popIn 0.4s ease-out;
 }
