@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Lucide icons
     lucide.createIcons();
+    
+    // Initialize OTP verification system
+    initializeOTPVerification();
 
     // Initialize current use case at the top
     const usecaseInput = document.getElementById('usecase-input');
@@ -305,23 +308,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Modify the usecaseInput event listener to ensure proper order of operations
     usecaseInput.addEventListener('change', function() {
-        currentUseCase = this.value;
-        updateConsentContainers();
+        const selectedUseCase = this.value;
+        currentUseCase = selectedUseCase;  // Update the current use case variable
+        console.log("Use case changed to:", selectedUseCase);
+        
+        // Update account options by use case
         updateAccountOptionsByUseCase();
+        
+        // Update account type container
         updateAccountTypeContainer();
+        
+        // Update filter tabs based on the selected use case
         updateFilterTabs();
+        
+        // Update consent containers based on selected use case
+        updateConsentContainers();
+        
+        // Update account counts
         updateDiscoveredAccountsCount();
         
-        // Add a small delay to ensure DOM updates are complete
-        setTimeout(() => {
-            updateSelectedCount();
-        }, 0);
-
-        // Reset filter tabs to "all" for consistency
-        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-        const allTab = document.querySelector('.filter-tab[data-filter="all"]');
-        if (allTab) {
-            allTab.classList.add('active');
+        // Special handling for credit line to ensure MF and equity are visible
+        if (selectedUseCase === 'credit-line') {
+            console.log('Applying credit line special handling');
+            
+            // Force MF and equity to be visible and checked
+            document.querySelectorAll('.account-option').forEach(option => {
+                const type = option.getAttribute('data-type');
+                if (type === 'mf' || type === 'equity') {
+                    option.style.display = 'flex';
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    }
+                } else {
+                    option.style.display = 'none';
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    }
+                }
+            });
+            
+            // Update section visibility
+            document.querySelectorAll('.bank-section').forEach(section => {
+                const hasMfOrEquity = Array.from(section.querySelectorAll('.account-option'))
+                    .some(option => {
+                        const type = option.getAttribute('data-type');
+                        return (type === 'mf' || type === 'equity') && option.style.display === 'flex';
+                    });
+                
+                section.style.display = hasMfOrEquity ? 'block' : 'none';
+            });
+            
+            // Log the state after special handling
+            const visibleOptions = document.querySelectorAll('.account-option[style*="flex"]');
+            const checkedBoxes = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)');
+            console.log('After credit line handling - Visible options:', visibleOptions.length);
+            console.log('After credit line handling - Checked boxes:', checkedBoxes.length);
+        }
+        
+        // Update the proceed button
+        updateProceedButton();
+        
+        // Update the page title based on the use case
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) {
+            switch (selectedUseCase) {
+                case 'loan-approval':
+                    pageTitle.textContent = 'Select Bank Accounts';
+                    break;
+                case 'portfolio-management':
+                    pageTitle.textContent = 'Select Accounts';
+                    break;
+                case 'credit-line':
+                    pageTitle.textContent = 'Select Investment Accounts';
+                    break;
+                case 'credit-card':
+                    pageTitle.textContent = 'Select Bank Accounts';
+                    break;
+                default:
+                    pageTitle.textContent = 'Select Accounts';
+            }
         }
     });
 
@@ -441,16 +510,33 @@ document.addEventListener('DOMContentLoaded', function() {
     function switchScreen(fromScreen, toScreen, isForward = true) {
         if (!fromScreen || !toScreen) return;
         
-        // Check if we should skip bank selection
+        // For debugging, log the transition
+        console.log(`Switching from ${fromScreen.id} to ${toScreen.id}, isForward: ${isForward}`);
+        console.log(`Current screen index before switch: ${currentScreenIndex}`);
+        
+        // Close any open OTP drawer when switching screens
+        closeOTPDrawer();
+        
+        // Check if we should skip bank selection for credit line use case
         if (toScreen.id === 'bank-selection-screen') {
             const allowedTypes = getAllowedAccountTypes();
-            if (!allowedTypes.includes('bank')) {
+            
+            // For credit line use case, we should always skip bank selection since it only uses MF and equity
+            if (currentUseCase === 'credit-line' || !allowedTypes.includes('bank')) {
                 // Skip to account selection screen instead
                 toScreen = document.getElementById('account-selection-screen');
-                currentScreenIndex++; // Increment again to skip bank selection
+                // Adjust currentScreenIndex to match this change if we're advancing forward
+                if (isForward) {
+                    const accountSelectionIndex = screensArray.findIndex(screen => screen.id === 'account-selection-screen');
+                    if (accountSelectionIndex !== -1) {
+                        console.log(`Credit line use case - skipping bank selection, updating currentScreenIndex from ${currentScreenIndex} to ${accountSelectionIndex}`);
+                        currentScreenIndex = accountSelectionIndex - 1; // -1 because the caller will increment it
+                    }
+                }
+                console.log(`Skipping bank selection for ${currentUseCase}, redirecting to ${toScreen.id}`);
             }
         }
-
+        
         // Add a minimum height constraint to the container if needed.
         const container = document.querySelector('.container');
         if (container) {
@@ -527,6 +613,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateProceedButton();
             }, 300);
         }, 300);
+        
+        // If we're switching to the account selection screen, update the phone number
+        if (toScreen.id === 'account-selection-screen') {
+            const userPhoneNumber = document.getElementById('phone-input').value;
+            // Format for discovered accounts section
+            const maskedNumber = userPhoneNumber.length > 0 
+                ? "+91 XXXXXX" + userPhoneNumber.slice(-4)
+                : "+91 XXXXXXXXXX";
+            const phoneNumberElement = document.querySelector('.discovered-accounts .phone-number');
+            if (phoneNumberElement) {
+                // Keep the edit button by only updating the text node
+                phoneNumberElement.childNodes[0].nodeValue = maskedNumber;
+            }
+        }
     }
 
     // Global array of screens and an index to track the current screen
@@ -880,29 +980,95 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function updateAccountOptionsByUseCase() {
         const allowedTypes = getAllowedAccountTypes();
+        console.log('Updating account options by use case:', currentUseCase);
+        console.log('Allowed account types:', allowedTypes);
 
-        // Loop through each account option and update its display
+        // Special handling for credit line - need to ensure MF and equity are properly shown
+        if (currentUseCase === 'credit-line') {
+            console.log('Special handling for credit line use case');
+            // Make sure MF and equity accounts are visible
+            document.querySelectorAll('.account-option').forEach(option => {
+                const type = option.getAttribute('data-type');
+                if (type === 'mf' || type === 'equity') {
+                    option.style.display = 'flex';
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    }
+                } else {
+                    option.style.display = 'none';
+                    const checkbox = option.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    }
+                }
+            });
+
+            // Ensure bank sections are hidden and non-bank sections are visible
+            document.querySelectorAll('.bank-section').forEach(section => {
+                const hasVisibleAccounts = Array.from(section.querySelectorAll('.account-option'))
+                    .some(option => option.style.display === 'flex');
+                section.style.display = hasVisibleAccounts ? 'block' : 'none';
+            });
+
+            // Log visible and checked accounts
+            const visibleOptions = document.querySelectorAll('.account-option[style*="flex"]');
+            const checkedBoxes = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)');
+            console.log('Credit line - Visible options:', visibleOptions.length);
+            console.log('Credit line - Checked boxes:', checkedBoxes.length);
+            
+            // Force update of the proceed button
+            updateProceedButton();
+            return;
+        }
+
+        // Loop through each account option and update its display and checked state
         document.querySelectorAll('.account-option').forEach(option => {
             const type = option.getAttribute('data-type');
-            // Remove the condition that might be hiding MF and equity options
-            option.style.display = allowedTypes.includes(type) ? 'flex' : 'none';
-        });
-
-        // Update bank sections visibility
-        document.querySelectorAll('.bank-section').forEach(section => {
-            const visibleAccounts = Array.from(section.querySelectorAll('.account-option'))
-                .filter(option => getComputedStyle(option).display !== 'none');
-            section.style.display = visibleAccounts.length > 0 ? 'block' : 'none';
-        });
-
-        // Log active account types for debugging
-        const activeAccountTypes = new Set();
-        document.querySelectorAll('.account-option').forEach(option => {
-            if (getComputedStyle(option).display !== 'none') {
-                activeAccountTypes.add(option.getAttribute('data-type'));
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            
+            if (allowedTypes.includes(type)) {
+                // Show and enable options of allowed types
+                option.style.display = 'flex';
+                
+                // Make sure checkbox is enabled and checked by default
+                if (checkbox) {
+                    checkbox.disabled = false;
+                    checkbox.checked = true;
+                }
+            } else {
+                // Hide and disable options of disallowed types
+                option.style.display = 'none';
+                
+                // Uncheck and disable checkboxes for hidden options
+                if (checkbox) {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                }
             }
         });
-        console.log("Active account types:", Array.from(activeAccountTypes).join(', '));
+        
+        // Log debugging info about account options
+        const visibleOptions = document.querySelectorAll('.account-option[style*="flex"]');
+        const checkedOptions = document.querySelectorAll('.account-option input[type="checkbox"]:checked:not(:disabled)');
+        console.log('Visible account options:', visibleOptions.length);
+        console.log('Checked account options:', checkedOptions.length);
+        console.log('All checkboxes (checked or not):', document.querySelectorAll('.account-option input[type="checkbox"]').length);
+
+        // Update bank sections visibility based on visible accounts
+        document.querySelectorAll('.bank-section').forEach(section => {
+            // Check if any account within this section is visible
+            const hasVisibleAccounts = Array.from(section.querySelectorAll('.account-option'))
+                .some(option => option.style.display === 'flex');
+            
+            // Only show bank sections that have at least one visible account
+            section.style.display = hasVisibleAccounts ? 'block' : 'none';
+        });
+        
+        // Force update of the proceed button state to reflect the actual checked accounts
+        updateProceedButton();
     }
 
     /**
@@ -1236,6 +1402,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // For all other screens, handle navigation normally
                 switch (currentScreen.id) {
                     case 'bank-selection-screen': {
+                        // For credit line use case, skip bank selection validation since banks aren't relevant
+                        if (currentUseCase === 'credit-line') {
+                            console.log('Credit line use case - skipping bank selection validation');
+                            break;
+                        }
+                        
                         // Example validation: require at least one bank to have been selected
                         if (selectedBankNames.size === 0) {
                             alert('Please select at least one bank to proceed');
@@ -1245,21 +1417,83 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     case 'account-selection-screen': {
                         // Gather the selected accounts and ensure there is at least one
-                        const selectedAccounts = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
+                        console.log('Validating account selection...');
+                        console.log('Current use case:', currentUseCase);
+                        
+                        const visibleCheckboxes = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]');
+                        console.log('Total visible account checkboxes:', visibleCheckboxes.length);
+                        
+                        const checkedBoxes = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)');
+                        console.log('Checked visible account checkboxes:', checkedBoxes.length);
+                        
+                        // Debug output of what options are visible
+                        console.log('Visible account options by type:');
+                        document.querySelectorAll('.account-option[style*="flex"]').forEach(option => {
+                            const type = option.getAttribute('data-type');
+                            const isChecked = option.querySelector('input[type="checkbox"]').checked;
+                            console.log(`- Type: ${type}, Checked: ${isChecked}`);
+                        });
+                        
+                        if (checkedBoxes.length === 0) {
+                            alert('Please select at least one account to proceed');
+                            
+                            // If this is credit line, force a refresh of the account options
+                            if (currentUseCase === 'credit-line') {
+                                console.log('Credit line use case detected - forcing account option refresh');
+                                // Make sure MF and equity checkboxes are checked
+                                document.querySelectorAll('.account-option[data-type="mf"], .account-option[data-type="equity"]').forEach(option => {
+                                    const checkbox = option.querySelector('input[type="checkbox"]');
+                                    if (checkbox) {
+                                        checkbox.checked = true;
+                                        checkbox.disabled = false;
+                                        option.style.display = 'flex';
+                                    }
+                                });
+                                
+                                // Hide bank sections, show MF/equity sections
+                                document.querySelectorAll('.bank-section').forEach(section => {
+                                    const hasVisibleMfOrEquity = Array.from(section.querySelectorAll('.account-option[data-type="mf"], .account-option[data-type="equity"]')).length > 0;
+                                    section.style.display = hasVisibleMfOrEquity ? 'block' : 'none';
+                                });
+                                
+                                updateProceedButton();
+                            }
+                            return;
+                        }
+                        
+                        const selectedAccounts = Array.from(checkedBoxes)
                             .map(checkbox => {
                                 const accountOption = checkbox.closest('.account-option');
                                 const bankSection = accountOption.closest('.bank-section');
                                 const bankInfo = bankSection.querySelector('.bank-info');
+                                
+                                // Make sure we can handle both image and icon logos
+                                let bankLogo;
+                                const imgLogo = bankInfo.querySelector('img');
+                                const iconLogo = bankInfo.querySelector('.bank-logo');
+                                
+                                if (imgLogo) {
+                                    bankLogo = imgLogo.src;
+                                } else if (iconLogo) {
+                                    bankLogo = iconLogo.outerHTML;
+                                }
+                                
                                 return {
                                     bankName: bankInfo.querySelector('span').textContent,
-                                    bankLogo: bankInfo.querySelector('img')?.src,
+                                    bankLogo: bankLogo,
                                     type: accountOption.querySelector('.account-type').textContent,
                                     number: accountOption.querySelector('.account-number').textContent
                                 };
                             });
                             
+                        console.log('Selected accounts:', selectedAccounts);
                         updateSelectedAccountsList(selectedAccounts);
-                        break;
+                        
+                        // Start the sequential OTP verification process instead of going directly to confirmation
+                        startSequentialOTPVerification();
+                        
+                        // Don't proceed to next screen immediately - OTP verification will handle that
+                        return;
                     }
                     // Additional validations for other screens can be added here if needed.
                 }
@@ -1668,8 +1902,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             case 'account-selection-screen':
                 proceedButton.textContent = 'Proceed';
-                // Get the current selected account count
-                const selectedAccounts = document.querySelectorAll('.account-option input[type="checkbox"]:checked').length;
+                // Only count visible and enabled checkboxes
+                const selectedAccounts = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)').length;
+                console.log('Proceed button update - Selected accounts count:', selectedAccounts);
                 proceedButton.disabled = selectedAccounts === 0;
                 break;
             
@@ -1711,6 +1946,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const bankSectionsContainer = document.getElementById('bank-sections-container');
         const allowedTypes = getAllowedAccountTypes();
         
+        console.log('Generating bank sections with allowed types:', allowedTypes);
+        
         // Keep existing MF and equity sections if they're allowed in current use case
         const existingNonBankSections = Array.from(bankSectionsContainer.querySelectorAll('.bank-section'))
             .filter(section => {
@@ -1726,47 +1963,50 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Create sections for each selected bank
-        selectedBankNames.forEach(bankName => {
-            const bank = banks.find(b => b.name === bankName);
-            if (!bank) return;
-
-            const bankSection = document.createElement('div');
-            bankSection.className = 'bank-section';
-            
-            // Generate mock accounts based on bank type
-            const mockAccounts = generateMockAccounts(bank.name);
-            
-            bankSection.innerHTML = `
-                <div class="bank-info">
-                    <div class="header-left-group">
-                        ${bank.logo === "landmark" 
-                            ? `<i data-lucide="landmark" class="bank-logo" style="color: var(--brand-color);"></i>`
-                            : `<img src="${bank.logo}" alt="${bank.name}" class="bank-logo">`
-                        }
-                        <span>${bank.name}</span>
+        // Only generate bank sections if 'bank' is an allowed type
+        if (allowedTypes.includes('bank')) {
+            // Create sections for each selected bank
+            selectedBankNames.forEach(bankName => {
+                const bank = banks.find(b => b.name === bankName);
+                if (!bank) return;
+    
+                const bankSection = document.createElement('div');
+                bankSection.className = 'bank-section';
+                
+                // Generate mock accounts based on bank type
+                const mockAccounts = generateMockAccounts(bank.name);
+                
+                bankSection.innerHTML = `
+                    <div class="bank-info">
+                        <div class="header-left-group">
+                            ${bank.logo === "landmark" 
+                                ? `<i data-lucide="landmark" class="bank-logo" style="color: var(--brand-color);"></i>`
+                                : `<img src="${bank.logo}" alt="${bank.name}" class="bank-logo">`
+                            }
+                            <span>${bank.name}</span>
+                        </div>
+                        <button class="select-all">Unselect All</button>
                     </div>
-                    <button class="select-all">Unselect All</button>
-                </div>
-                <div class="account-options">
-                    ${mockAccounts.map(account => `
-                        <label class="account-option" data-type="${account.type}">
-                            <div class="checkbox-container">
-                                <input type="checkbox" name="account" checked>
-                                <span class="checkbox-checkmark"></span>
-                            </div>
-                            <div class="account-details">
-                                <div class="account-type">${account.accountType}</div>
-                                <div class="account-number">Account No: ${account.accountNumber}</div>
-                            </div>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-
-            // Insert bank sections at the beginning of the container
-            bankSectionsContainer.insertBefore(bankSection, bankSectionsContainer.firstChild);
-        });
+                    <div class="account-options">
+                        ${mockAccounts.map(account => `
+                            <label class="account-option" data-type="${account.type}">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" name="account" checked>
+                                    <span class="checkbox-checkmark"></span>
+                                </div>
+                                <div class="account-details">
+                                    <div class="account-type">${account.accountType}</div>
+                                    <div class="account-number">Account No: ${account.accountNumber}</div>
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+    
+                // Insert bank sections at the beginning of the container
+                bankSectionsContainer.insertBefore(bankSection, bankSectionsContainer.firstChild);
+            });
+        }
 
         // Re-append existing non-bank sections
         existingNonBankSections.forEach(section => {
@@ -1775,17 +2015,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reinitialize Lucide icons for dynamic elements
         lucide.createIcons();
+        
+        // Ensure all checkboxes are properly checked in the DOM for allowed types
+        // and unchecked for disallowed types
+        document.querySelectorAll('.account-option').forEach(option => {
+            const type = option.getAttribute('data-type');
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            
+            if (checkbox) {
+                if (allowedTypes.includes(type)) {
+                    checkbox.checked = true;
+                    checkbox.disabled = false;
+                    option.style.display = 'flex';
+                } else {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                    option.style.display = 'none';
+                }
+            }
+        });
 
         // Update the "Select All" buttons for all bank sections
         // to ensure their text is consistent with the checkbox states
         document.querySelectorAll('.bank-section').forEach(section => {
             updateSelectAllButtonText(section);
             updateAccountOptionStyles(section);
+            
+            // Verify if section has any visible accounts
+            const hasVisibleAccounts = Array.from(section.querySelectorAll('.account-option'))
+                .some(option => option.style.display === 'flex');
+            
+            // Hide sections with no visible accounts
+            section.style.display = hasVisibleAccounts ? 'block' : 'none';
         });
 
         // Update the counts after generating sections
         updateDiscoveredAccountsCount();
         updateSelectedCount();
+        
+        console.log('Bank sections generated with checkboxes:', 
+                    document.querySelectorAll('.account-option input[type="checkbox"]').length,
+                    'Checked visible checkboxes:', 
+                    document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)').length);
+        
+        // Make sure the proceed button state is updated
+        updateProceedButton();
     }
 
     function generateMockAccounts(bankName) {
@@ -1817,22 +2091,51 @@ document.addEventListener('DOMContentLoaded', function() {
     backButton.addEventListener('click', function () {
         if (currentScreenIndex > 0) {
             const fromScreen = screensArray[currentScreenIndex];
+            let targetScreenIndex;
             
-            // If we're on the account selection screen and bank selection was skipped
-            if (fromScreen.id === 'account-selection-screen') {
+            // Use a more explicit approach for determining the target screen
+            if (fromScreen.id === 'confirmation-screen') {
+                // When going back from confirmation screen, always go to account selection screen
+                targetScreenIndex = screensArray.findIndex(screen => screen.id === 'account-selection-screen');
+                
+                // Reset OTP verification state
+                selectedInstitutions = [];
+                currentInstitutionIndex = 0;
+                verifiedInstitutions = [];
+                closeOTPDrawer();
+            } 
+            else if (fromScreen.id === 'account-selection-screen') {
                 const allowedTypes = getAllowedAccountTypes();
                 if (!allowedTypes.includes('bank')) {
-                    // Skip back past bank selection screen
-                    currentScreenIndex -= 2;
+                    // Skip back past bank selection screen to mobile input
+                    targetScreenIndex = screensArray.findIndex(screen => screen.id === 'mobile-input-screen');
                 } else {
-                    currentScreenIndex--;
+                    // Go back to bank selection
+                    targetScreenIndex = screensArray.findIndex(screen => screen.id === 'bank-selection-screen');
                 }
-            } else {
-                currentScreenIndex--;
+            }
+            else if (fromScreen.id === 'bank-selection-screen') {
+                // Go back to mobile input
+                targetScreenIndex = screensArray.findIndex(screen => screen.id === 'mobile-input-screen');
+            }
+            else if (fromScreen.id === 'success-screen') {
+                // From success screen, go back to confirmation
+                targetScreenIndex = screensArray.findIndex(screen => screen.id === 'confirmation-screen');
+            }
+            else {
+                // Default fallback - go back one screen
+                targetScreenIndex = currentScreenIndex - 1;
             }
             
-            const targetScreen = screensArray[currentScreenIndex];
-            switchScreen(fromScreen, targetScreen, false);
+            // Ensure target index is valid
+            if (targetScreenIndex >= 0 && targetScreenIndex < screensArray.length) {
+                // Update the current screen index
+                currentScreenIndex = targetScreenIndex;
+                const targetScreen = screensArray[targetScreenIndex];
+                
+                // Switch to the target screen
+                switchScreen(fromScreen, targetScreen, false);
+            }
         }
     });
 
@@ -1861,10 +2164,353 @@ document.addEventListener('DOMContentLoaded', function() {
                 (screen) => screen.id === 'account-selection-screen'
             );
             if (targetIndex !== -1) {
-                switchScreen(currentScreen, screensArray[targetIndex], false);
+                // Reset OTP verification state
+                selectedInstitutions = [];
+                currentInstitutionIndex = 0;
+                verifiedInstitutions = [];
+                
+                // Update current screen index before switching
                 currentScreenIndex = targetIndex;
+                
+                switchScreen(currentScreen, screensArray[targetIndex], false);
             }
         }
+    });
+
+    // Sequential OTP verification for financial institutions
+    let selectedInstitutions = [];
+    let currentInstitutionIndex = 0;
+    let verifiedInstitutions = [];
+    
+    function initializeOTPVerification() {
+        // Set up event listeners for OTP verification
+        const verifyOTPButton = document.querySelector('.verify-otp-button');
+        const otpInput = document.querySelector('.sequential-otp-input');
+        const unableToReceiveLink = document.querySelector('.unable-to-receive a');
+        
+        // Initialize OTP timer
+        let resendTimerInterval;
+        
+        verifyOTPButton.addEventListener('click', verifyCurrentInstitutionOTP);
+        
+        // Handle "Unable to receive OTP" link
+        unableToReceiveLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // You can implement custom logic here, like showing alternative verification options
+            alert('Please contact customer support for assistance with OTP verification.');
+        });
+        
+        // Add input validation for OTP
+        otpInput.addEventListener('input', function(e) {
+            // Only allow digits
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
+            // Enable/disable verify button based on OTP length
+            verifyOTPButton.disabled = e.target.value.length !== 6;
+            
+            // Clear error message when user types
+            const errorMessage = document.querySelector('.otp-error-message');
+            errorMessage.classList.remove('show');
+        });
+    }
+
+    function startResendOTPTimer() {
+        const timerElement = document.querySelector('.resend-timer');
+        let timeLeft = 20; // 20 seconds
+        
+        // Clear any existing interval
+        if (window.resendTimerInterval) {
+            clearInterval(window.resendTimerInterval);
+        }
+        
+        // Update timer display
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(window.resendTimerInterval);
+                document.querySelector('.otp-resend').innerHTML = '<a href="#" class="resend-otp-link" style="color: var(--brand-color);">Resend OTP</a>';
+                
+                // Add event listener for resend link
+                document.querySelector('.resend-otp-link').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Logic to resend OTP
+                    // For demo, we'll just restart the timer
+                    startResendOTPTimer();
+                    document.querySelector('.otp-resend').innerHTML = '<span>Resend OTP in <span class="resend-timer">00:20</span></span>';
+                });
+            }
+            
+            timeLeft--;
+        }
+        
+        // Initial update
+        updateTimer();
+        
+        // Set interval for timer
+        window.resendTimerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function startSequentialOTPVerification() {
+        console.log("Starting sequential OTP verification");
+        
+        // Reset verification state
+        currentInstitutionIndex = 0;
+        verifiedInstitutions = [];
+        
+        // Get all selected financial institutions
+        selectedInstitutions = getSelectedInstitutions();
+        console.log(`Found ${selectedInstitutions.length} institutions requiring OTP`);
+        
+        if (selectedInstitutions.length === 0) {
+            // If no institutions selected, go to confirmation screen directly
+            console.log("No institutions to verify, proceeding to confirmation screen");
+            currentScreenIndex = screensArray.findIndex(screen => screen.id === 'confirmation-screen');
+            switchScreen(document.getElementById('account-selection-screen'), document.getElementById('confirmation-screen'));
+            return;
+        }
+        
+        // Make sure OTP drawer is closed before starting (in case it was left open)
+        closeOTPDrawer();
+        
+        // Start verification process after a short delay
+        setTimeout(() => {
+            showOTPDrawerForCurrentInstitution();
+        }, 300);
+    }
+
+    function getSelectedInstitutions() {
+        // Extract information about selected financial institutions
+        const selectedInstitutionsData = [];
+        // Only get visible and enabled checkboxes that are checked
+        const selectedAccountOptions = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)');
+        
+        console.log(`Found ${selectedAccountOptions.length} checked visible accounts for OTP verification`);
+        
+        // Create a map to group by institution
+        const institutionsMap = new Map();
+        
+        selectedAccountOptions.forEach(checkbox => {
+            const accountOption = checkbox.closest('.account-option');
+            const bankSection = accountOption.closest('.bank-section');
+            const bankInfo = bankSection.querySelector('.bank-info');
+            
+            // Handle both image and icon logos
+            let bankLogo;
+            const imgLogo = bankInfo.querySelector('img');
+            const iconLogo = bankInfo.querySelector('.bank-logo');
+            
+            if (imgLogo) {
+                bankLogo = imgLogo.src;
+            } else if (iconLogo) {
+                // For icon logos, use a placeholder or extract the SVG
+                bankLogo = 'placeholder-icon.png'; // Fallback placeholder
+            }
+            
+            const bankName = bankInfo.querySelector('span').textContent;
+            
+            if (!institutionsMap.has(bankName)) {
+                institutionsMap.set(bankName, {
+                    name: bankName,
+                    logo: bankLogo,
+                    accounts: []
+                });
+            }
+            
+            const accountType = accountOption.querySelector('.account-type').textContent;
+            const accountNumber = accountOption.querySelector('.account-number').textContent;
+            
+            institutionsMap.get(bankName).accounts.push({
+                type: accountType,
+                number: accountNumber
+            });
+        });
+        
+        // Convert map to array
+        return Array.from(institutionsMap.values());
+    }
+
+    function showOTPDrawerForCurrentInstitution() {
+        if (currentInstitutionIndex >= selectedInstitutions.length) {
+            // All institutions verified, proceed to confirmation screen
+            closeOTPDrawer();
+            const accountSelectionScreen = document.getElementById('account-selection-screen');
+            const confirmationScreen = document.getElementById('confirmation-screen');
+            
+            // Make sure the currentScreenIndex is updated correctly
+            currentScreenIndex = screensArray.findIndex(screen => screen.id === 'confirmation-screen');
+            
+            switchScreen(accountSelectionScreen, confirmationScreen);
+            return;
+        }
+        
+        const currentInstitution = selectedInstitutions[currentInstitutionIndex];
+        const otpDrawer = document.querySelector('.otp-verification-drawer');
+        const drawerBackdrop = document.querySelector('.drawer-backdrop');
+        
+        // Update drawer content
+        const institutionLogo = otpDrawer.querySelector('.institution-logo');
+        const institutionName = otpDrawer.querySelector('.institution-name');
+        const currentStep = otpDrawer.querySelector('.current-step');
+        const totalSteps = otpDrawer.querySelector('.total-steps');
+        const otpInput = otpDrawer.querySelector('.sequential-otp-input');
+        const errorMessage = otpDrawer.querySelector('.otp-error-message');
+        const bankName = otpDrawer.querySelector('.bank-name');
+        const phoneNumber = otpDrawer.querySelector('.phone-number');
+        
+        institutionLogo.src = currentInstitution.logo;
+        institutionName.textContent = currentInstitution.name;
+        currentStep.textContent = currentInstitutionIndex + 1;
+        totalSteps.textContent = selectedInstitutions.length;
+        bankName.textContent = currentInstitution.name;
+        
+        // Get the user's entered phone number instead of using a hardcoded value
+        const userPhoneNumber = document.getElementById('phone-input').value;
+        // Format the phone number to show only last 4 digits and mask the rest
+        const maskedNumber = userPhoneNumber.length > 0 
+            ? "+91 XXXXXX" + userPhoneNumber.slice(-4)
+            : "XXXXXXXXXX";
+        phoneNumber.textContent = maskedNumber;
+        
+        otpInput.value = '';
+        errorMessage.classList.remove('show');
+        
+        // Disable verify button initially
+        const verifyButton = otpDrawer.querySelector('.verify-otp-button');
+        verifyButton.disabled = true;
+        
+        // Show drawer and backdrop
+        drawerBackdrop.style.display = 'block';
+        
+        // Use a small delay to ensure the backdrop appears before starting animation
+        setTimeout(() => {
+            drawerBackdrop.classList.add('open');
+            otpDrawer.classList.add('open');
+        }, 10);
+        
+        // Start resend OTP timer
+        startResendOTPTimer();
+        
+        // Focus on the input after drawer animation completes
+        setTimeout(() => {
+            otpInput.focus();
+        }, 400); // Matches the animation duration
+    }
+
+    function verifyCurrentInstitutionOTP() {
+        const otpInput = document.querySelector('.sequential-otp-input');
+        const otp = otpInput.value;
+        const errorMessage = document.querySelector('.otp-error-message');
+        
+        // For demo purposes, any 6-digit OTP is valid
+        if (otp.length === 6 && /^\d+$/.test(otp)) {
+            // OTP is valid, move to next institution
+            verifiedInstitutions.push(selectedInstitutions[currentInstitutionIndex]);
+            
+            // Show a success message briefly
+            const verifyButton = document.querySelector('.verify-otp-button');
+            const originalText = verifyButton.textContent;
+            verifyButton.disabled = true;
+            verifyButton.style.backgroundColor = "#FFFFFF";
+            verifyButton.style.color = "dark-green";
+            verifyButton.textContent = 'Verified ✓';
+            
+            // After a short delay, proceed to the next institution
+            setTimeout(() => {
+                verifyButton.style.backgroundColor = "";
+                verifyButton.style.color = "";
+                verifyButton.textContent = originalText;
+                currentInstitutionIndex++;
+                // Show next institution or complete process
+                showOTPDrawerForCurrentInstitution();
+            }, 1000);
+        } else {
+            // Display error message
+            errorMessage.textContent = 'Please enter a valid 6-digit OTP';
+            errorMessage.classList.add('show');
+        }
+    }
+
+    function closeOTPDrawer() {
+        const otpDrawer = document.querySelector('.otp-verification-drawer');
+        const drawerBackdrop = document.querySelector('.drawer-backdrop');
+        
+        if (!otpDrawer || !drawerBackdrop) return;
+        
+        // Reset the OTP input
+        const otpInput = otpDrawer.querySelector('.sequential-otp-input');
+        if (otpInput) otpInput.value = '';
+        
+        // Clear any error messages
+        const errorMessage = otpDrawer.querySelector('.otp-error-message');
+        if (errorMessage) errorMessage.classList.remove('show');
+        
+        // Close the drawer with animation
+        otpDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('open');
+        
+        // Hide backdrop after animation completes
+        setTimeout(() => {
+            drawerBackdrop.style.display = 'none';
+        }, 400); // Match the animation duration
+    }
+
+    // Add a click event listener to the "Get Started" button in the popup
+    document.querySelector('.get-started-button').addEventListener('click', function() {
+        const popup = document.getElementById('how-it-works-popup');
+        popup.style.display = 'none';
+        
+        // Get selected use case
+        const selectedUseCase = document.getElementById('usecase-input').value;
+        console.log('Selected use case on start:', selectedUseCase);
+        currentUseCase = selectedUseCase;
+        
+        // Update the account type selection based on the use case
+        document.querySelectorAll('.account-type-item').forEach(item => {
+            const icon = item.querySelector('.account-type-icon');
+            const text = item.querySelector('span').textContent.toLowerCase();
+            const type = text.includes('bank') ? 'bank' : text.includes('mutual') ? 'mf' : 'equity';
+            
+            const isAllowed = getAllowedAccountTypes().includes(type);
+            item.style.opacity = isAllowed ? '1' : '0.4';
+        });
+        
+        // Apply special handling for credit line immediately
+        if (selectedUseCase === 'credit-line') {
+            console.log('Initial setup for credit line use case');
+            updateAccountOptionsByUseCase();
+            setTimeout(() => {
+                // Make doubly sure MF and equity accounts are selected for credit line
+                document.querySelectorAll('.account-option').forEach(option => {
+                    const type = option.getAttribute('data-type');
+                    if (type === 'mf' || type === 'equity') {
+                        option.style.display = 'flex';
+                        const checkbox = option.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            checkbox.disabled = false;
+                        }
+                    } else {
+                        option.style.display = 'none';
+                        const checkbox = option.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            checkbox.checked = false;
+                            checkbox.disabled = true;
+                        }
+                    }
+                });
+                
+                updateProceedButton();
+            }, 500);
+        }
+        
+        // Update consent containers based on the selected use case
+        updateConsentContainers();
+        
+        // Start the number counter animation for active users
+        animateUserCount(84632);
     });
 
 });

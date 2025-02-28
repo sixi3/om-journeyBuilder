@@ -294,8 +294,8 @@
                             <div class="bank-section mf">
                                 <div class="bank-info">
                                     <div class="header-left-group">
-                                        <img src="hdfc-logo.png" alt="HDFC Mutual Funds" class="bank-logo">
-                                        <span>HDFC Mutua...</span>
+                                        <img src="KFIN-logo.png" alt="HDFC Mutual Funds" class="bank-logo">
+                                        <span>KFIN Technologies</span>
                                     </div>
                                     <button class="select-all">Select All</button>
                                 </div>
@@ -306,29 +306,42 @@
                                             <span class="checkbox-checkmark"></span>
                                         </div>
                                         <div class="account-details">
-                                            <div class="account-type">HDFC Top 100 Fund</div>
+                                            <div class="account-type">DEMAT Account</div>
                                             <div class="account-number">Folio No: XXXXXXXX8821</div>
                                         </div>
                                     </label>
+                                </div>
+                                
+                            </div>
 
+                            <div class="bank-section mf">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="CAMS-logo.png" alt="HDFC Mutual Funds" class="bank-logo">
+                                        <span>CAMS Technologies</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
                                     <label class="account-option" data-type="mf">
                                         <div class="checkbox-container">
                                             <input type="checkbox" name="account" checked>
                                             <span class="checkbox-checkmark"></span>
                                         </div>
                                         <div class="account-details">
-                                            <div class="account-type">HDFC Mid-Cap Opportunities Fund</div>
-                                            <div class="account-number">Folio No: XXXXXXXX9932</div>
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Folio No: XXXXXXXX4126</div>
                                         </div>
                                     </label>
                                 </div>
+                                
                             </div>
 
                             <div class="bank-section equity">
                                 <div class="bank-info">
                                     <div class="header-left-group">
-                                        <img src="zerodha-logo.png" alt="Zerodha" class="bank-logo">
-                                        <span>Zerodha</span>
+                                        <img src="CSDL-logo.png" alt="Zerodha" class="bank-logo">
+                                        <span>CSDL</span>
                                     </div>
                                     <button class="select-all">Select All</button>
                                 </div>
@@ -339,13 +352,35 @@
                                             <span class="checkbox-checkmark"></span>
                                         </div>
                                         <div class="account-details">
-                                            <div class="account-type">Demat Account</div>
+                                            <div class="account-type">DEMAT Account</div>
                                             <div class="account-number">Account No: XXXXXXXX5566</div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
+                            <div class="bank-section equity">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="NSDL-logo.png" alt="Zerodha" class="bank-logo">
+                                        <span>NSDL</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="equity">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX8278</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+                        
                         
                         <div class="spacer"></div>
                     </div>
@@ -524,6 +559,39 @@
                                 <li>Your data will be stored</li>
                                 <li>Account types: Deposits, Term Deposits</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New OTP Verification Drawer -->
+                <div class="otp-verification-drawer">
+                    <div class="otp-verification-content">
+                        <div class="institution-info">
+                            <img src="" alt="Bank Logo" class="institution-logo">
+                            <span class="institution-name"></span>
+                        </div>
+                        <div class="otp-progress">
+                            <span>OTP <span class="current-step">1</span> of <span class="total-steps">2</span></span>
+                        </div>
+                        <p class="otp-instruction">Enter <span class="bank-name">HDFC</span> OTP sent to <span class="phone-number">81XXXXXXXX</span></p>
+                        <div class="otp-input-container">
+                            <input type="tel" 
+                                  class="sequential-otp-input"
+                                  placeholder="Enter any 6-digit OTP"
+                                  maxlength="6"
+                                  pattern="[0-9]*">
+                        </div>
+                        <div class="otp-error-message"></div>
+                        <div class="otp-resend">
+                            <span>Resend OTP in <span class="resend-timer">00:20</span></span>
+                        </div>
+                        <button class="verify-otp-button">Verify OTP</button>
+                        <div class="unable-to-receive">
+                            <a href="#">Unable to receive OTP</a>
+                        </div>
+                        <div class="powered-by-section">
+                            <span>powered by</span>
+                            <img src="onemoney-logo.png" alt="OneMoney" class="powered-logo">
                         </div>
                     </div>
                 </div>
