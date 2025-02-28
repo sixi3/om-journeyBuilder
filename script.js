@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Lucide icons
     lucide.createIcons();
 
+    // Initialize current use case at the top
+    const usecaseInput = document.getElementById('usecase-input');
+    let currentUseCase = usecaseInput ? usecaseInput.value : 'loan-approval'; // Default to loan-approval if input not found
+
     // Cache DOM elements
     const uploadButton = document.querySelector('.upload-button');
     const fileInput = document.getElementById('logo-input');
@@ -121,47 +125,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update styles of account options based on checkbox state
     function updateAccountOptionStyles(bankSection) {
+        // Get the current brand color from CSS variable
+        const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-color').trim();
+        
         const accountOptions = bankSection.querySelectorAll('.account-option');
         accountOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
             if (checkbox.checked) {
                 option.classList.add('selected');
-                option.style.borderColor = color;
-                const rgb = hexToRGB(color);
-                option.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`;
+                option.style.borderColor = brandColor;
+                // Removed background color change
             } else {
                 option.classList.remove('selected');
                 option.style.borderColor = '';
-                option.style.backgroundColor = '';
+                // Removed background color reset
             }
         });
     }
 
-    // Handle account selection
-    document.querySelectorAll('.account-option').forEach(option => {
-        option.addEventListener('click', function(e) {
+    // Add this helper function for updating "Select All" button text
+    function updateSelectAllButtonText(bankSection) {
+        const selectAllButton = bankSection.querySelector('.select-all');
+        if (!selectAllButton) return;
+        
+        const accountOptions = bankSection.querySelectorAll('.account-option');
+        const hasUncheckedOptions = Array.from(accountOptions)
+            .some(option => !option.querySelector('input[type="checkbox"]').checked);
+        
+        selectAllButton.textContent = hasUncheckedOptions ? 'Select All' : 'Unselect All';
+    }
+
+    // Handle account selection using event delegation instead of attaching listeners to each option
+    document.addEventListener('click', function(e) {
+        // Handle account option clicks through delegation
+        const accountOption = e.target.closest('.account-option');
+        if (accountOption) {
             e.preventDefault();
             e.stopPropagation();
             
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            updateAccountOptionStyles(this);
-            
-            // Update Select All button text
-            const bankSection = this.closest('.bank-section');
-            const selectAllButton = bankSection.querySelector('.select-all');
-            const accountOptions = bankSection.querySelectorAll('.account-option');
-            const hasUncheckedOptions = Array.from(accountOptions)
-                .some(option => !option.querySelector('input[type="checkbox"]').checked);
-            selectAllButton.textContent = hasUncheckedOptions ? 'Select All' : 'Unselect All';
-            
-            updateSelectedCount();
-        });
-    });
-
-    // Initialize styles for checkboxes on page load
-    document.querySelectorAll('.account-option').forEach(option => {
-        updateAccountOptionStyles(option);
+            const checkbox = accountOption.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                const bankSection = accountOption.closest('.bank-section');
+                updateAccountOptionStyles(bankSection);
+                
+                // Update Select All button text
+                if (bankSection) {
+                    updateSelectAllButtonText(bankSection);
+                }
+                
+                updateSelectedCount();
+            }
+        }
+        
+        // Handle select all button clicks through delegation
+        const selectAllButton = e.target.closest('.select-all');
+        if (selectAllButton) {
+            e.preventDefault();
+            const bankSection = selectAllButton.closest('.bank-section');
+            if (bankSection) {
+                handleSelectAll(bankSection);
+                updateSelectedCount();
+            }
+        }
     });
 
     // Initialize with default color
@@ -172,6 +198,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const rgb = hexToRGB(defaultColor);
     document.documentElement.style.setProperty('--brand-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     updateBrandColor(defaultColor);
+    
+    // Initialize styles for checkboxes on page load (moved here after setting brand color)
+    document.querySelectorAll('.bank-section').forEach(section => {
+        updateAccountOptionStyles(section);
+    });
 
     // List of Google Fonts
     const googleFonts = [
@@ -237,10 +268,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSelectedCount() {
-        const selectedCount = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
-            .filter(checkbox => getComputedStyle(checkbox.closest('.account-option')).display !== 'none').length;
-        const totalCount = Array.from(document.querySelectorAll('.account-option'))
-            .filter(option => getComputedStyle(option).display !== 'none').length;
+        const allowedTypes = getAllowedAccountTypes();
+        
+        // Get ALL account options that match the allowed types, regardless of visibility
+        const accountOptions = Array.from(document.querySelectorAll('.account-option'))
+            .filter(option => allowedTypes.includes(option.getAttribute('data-type')));
+        
+        // Count only checked boxes among ALL allowed account types
+        const selectedCount = accountOptions
+            .filter(option => option.querySelector('input[type="checkbox"]').checked)
+            .length;
+        
+        // Total count is the length of ALL allowed account options
+        const totalCount = accountOptions.length;
+        
         const pill = document.querySelector('.accounts-counter .pill');
         const prevCount = parseInt(pill.querySelector('.pill-number-animate')?.textContent || '0');
         
@@ -252,7 +293,37 @@ document.addEventListener('DOMContentLoaded', function() {
         pill.innerHTML = `
             <span class="pill-number-animate ${animationClass}">${number.trim()}</span>/${rest.join('')}
         `;
+
+        // Update proceed button state based on selected accounts
+        const proceedButton = document.querySelector('.proceed-button');
+        const activeScreen = document.querySelector('.screen[data-active="true"]');
+        
+        if (activeScreen && activeScreen.id === 'account-selection-screen') {
+            proceedButton.disabled = selectedCount === 0;
+        }
     }
+
+    // Modify the usecaseInput event listener to ensure proper order of operations
+    usecaseInput.addEventListener('change', function() {
+        currentUseCase = this.value;
+        updateConsentContainers();
+        updateAccountOptionsByUseCase();
+        updateAccountTypeContainer();
+        updateFilterTabs();
+        updateDiscoveredAccountsCount();
+        
+        // Add a small delay to ensure DOM updates are complete
+        setTimeout(() => {
+            updateSelectedCount();
+        }, 0);
+
+        // Reset filter tabs to "all" for consistency
+        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+        const allTab = document.querySelector('.filter-tab[data-filter="all"]');
+        if (allTab) {
+            allTab.classList.add('active');
+        }
+    });
 
     updateSelectedCount();
 
@@ -267,9 +338,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const isAtBottom = Math.abs(mainContent.scrollTop - scrollableHeight) <= 1;
         
         if (isAtBottom || scrollableHeight <= 0) {
+            // No overflow or at bottom, hide the indicator
             scrollIndicator.style.opacity = '0';
             scrollIndicator.style.transform = 'translateY(100%)';
+            // Add a slight delay before hiding completely to allow for animation
+            setTimeout(() => {
+                if (scrollableHeight <= 0) {
+                    scrollIndicator.style.display = 'none';
+                }
+            }, 300);
         } else {
+            // Has overflow and not at bottom, show the indicator
+            scrollIndicator.style.display = 'flex';
             scrollIndicator.style.opacity = '1';
             scrollIndicator.style.transform = 'translateY(0)';
         }
@@ -277,6 +357,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     mainContent.addEventListener('scroll', updateScrollIndicator);
     updateScrollIndicator();
+
+    // Add resize event listener to update scroll indicator when window size changes
+    window.addEventListener('resize', updateScrollIndicator);
 
     function handleSelectAll(bankSection) {
         const selectAllButton = bankSection.querySelector('.select-all');
@@ -288,30 +371,14 @@ document.addEventListener('DOMContentLoaded', function() {
         accountOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
             checkbox.checked = hasUncheckedOptions;
-            updateAccountOptionStyles(option);
         });
+
+        // Update styles for all options in this bank section
+        updateAccountOptionStyles(bankSection);
 
         // Update button text based on new state
-        selectAllButton.textContent = hasUncheckedOptions ? 'Unselect All' : 'Select All';
+        updateSelectAllButtonText(bankSection);
     }
-
-    // Update the bank section initialization
-    document.querySelectorAll('.bank-section').forEach(bankSection => {
-        const selectAllButton = bankSection.querySelector('.select-all');
-        
-        // Add click handler
-        selectAllButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            handleSelectAll(bankSection);
-            updateSelectedCount();
-        });
-
-        // Set initial button text
-        const accountOptions = bankSection.querySelectorAll('.account-option');
-        const hasUncheckedOptions = Array.from(accountOptions)
-            .some(option => !option.querySelector('input[type="checkbox"]').checked);
-        selectAllButton.textContent = hasUncheckedOptions ? 'Select All' : 'Unselect All';
-    });
 
     // Screen Management
     const phoneInput = document.getElementById('phone-input');
@@ -374,6 +441,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function switchScreen(fromScreen, toScreen, isForward = true) {
         if (!fromScreen || !toScreen) return;
         
+        // Check if we should skip bank selection
+        if (toScreen.id === 'bank-selection-screen') {
+            const allowedTypes = getAllowedAccountTypes();
+            if (!allowedTypes.includes('bank')) {
+                // Skip to account selection screen instead
+                toScreen = document.getElementById('account-selection-screen');
+                currentScreenIndex++; // Increment again to skip bank selection
+            }
+        }
+
         // Add a minimum height constraint to the container if needed.
         const container = document.querySelector('.container');
         if (container) {
@@ -432,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         }
                         mainContent.style.height = '100%';
-                        scrollIndicator.style.display = 'flex';
+                        // Let updateScrollIndicator determine visibility 
                         updateScrollIndicator();
                     } else {
                         mainContent.style.overflowY = 'auto';
@@ -442,6 +519,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 behavior: 'smooth'
                             });
                         });
+                        // Let updateScrollIndicator determine visibility for all screens
+                        updateScrollIndicator();
                     }
                 }
                 // Call updateProceedButton after the screen transition is complete.
@@ -459,123 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('success-screen')
     ];
     let currentScreenIndex = 0;
-
-    proceedButton.addEventListener('click', function() {
-        const currentScreen = screensArray[currentScreenIndex];
-        
-        // Perform validations based on the current screen
-        switch (currentScreen.id) {
-            case 'mobile-input-screen': {
-                if (!phoneInput.value) {
-                    showError(phoneInput, 'Please enter your mobile number');
-                    return;
-                }
-                if (!isValidIndianMobileNumber(phoneInput.value)) {
-                    showError(phoneInput, 'Please enter a valid 10-digit mobile number');
-                    return;
-                }
-                
-                const otpInputGroup = document.querySelector('.otp-input-group');
-                const otpInput = document.getElementById('otp-input');
-                if (!otpInputGroup.classList.contains('show')) {
-                    // First click – show the OTP input
-                    otpInputGroup.style.display = 'flex';
-                    otpInputGroup.offsetHeight; // Force reflow
-                    otpInputGroup.classList.add('show');
-                    this.textContent = 'Verify OTP';
-                    this.disabled = true;
-                    otpInput.focus();
-                    // Simulate sending OTP (in real life, you'd call an API)
-                    console.log('Sending OTP for number:', phoneInput.value);
-                    return;
-                }
-                // Second click – verify OTP
-                if (otpInput.value.length !== 6) {
-                    showError(otpInput, 'Please enter a valid 6-digit OTP');
-                    return;
-                }
-                break;
-            }
-            case 'bank-selection-screen': {
-                // Example validation: require at least one bank to have been selected
-                if (selectedBankNames.size === 0) {
-                    alert('Please select at least one bank to proceed');
-                    return;
-                }
-                break;
-            }
-            case 'account-selection-screen': {
-                // Gather the selected accounts and ensure there is at least one
-                const selectedAccounts = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
-                    .map(checkbox => {
-                        const accountOption = checkbox.closest('.account-option');
-                        const bankSection = accountOption.closest('.bank-section');
-                        const bankInfo = bankSection.querySelector('.bank-info');
-                        return {
-                            bankName: bankInfo.querySelector('span').textContent,
-                            bankLogo: bankInfo.querySelector('img').src,
-                            type: accountOption.querySelector('.account-type').textContent,
-                            number: accountOption.querySelector('.account-number').textContent
-                        };
-                    });
-                
-                if (selectedAccounts.length === 0) {
-                    alert('Please select at least one account to proceed');
-                    return;
-                }
-                updateSelectedAccountsList(selectedAccounts);
-                break;
-            }
-            // Additional validations for other screens can be added here if needed.
-        }
-        
-        // If validations pass, move to the next screen if available in the array.
-        if (currentScreenIndex < screensArray.length - 1) {
-            const fromScreen = screensArray[currentScreenIndex];
-            const toScreen = screensArray[++currentScreenIndex];
-            switchScreen(fromScreen, toScreen, true);
-        }
-    });
-
-    backButton.addEventListener('click', function () {
-        if (currentScreenIndex > 0) {
-            const fromScreen = screensArray[currentScreenIndex];
-            const targetScreen = screensArray[currentScreenIndex - 1];
-            switchScreen(fromScreen, targetScreen, false);
-            currentScreenIndex--;
-        }
-    });
-
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('edit-phone')) {
-            const currentScreen = screensArray[currentScreenIndex];
-            const targetIndex = screensArray.findIndex(
-                (screen) => screen.id === 'mobile-input-screen'
-            );
-            if (targetIndex !== -1 && currentScreen.id !== 'mobile-input-screen') {
-                switchScreen(currentScreen, screensArray[targetIndex], false);
-                currentScreenIndex = targetIndex;
-                hideOtpInput();
-            }
-        }
-    });
-
-    document.querySelector('.link-more').addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const currentScreen = screensArray[currentScreenIndex];
-        // Ensure that the action only applies if we're on the confirmation screen.
-        if (currentScreen.id === 'confirmation-screen') {
-            const targetIndex = screensArray.findIndex(
-                (screen) => screen.id === 'account-selection-screen'
-            );
-            if (targetIndex !== -1) {
-                switchScreen(currentScreen, screensArray[targetIndex], false);
-                currentScreenIndex = targetIndex;
-            }
-        }
-    });
 
     function showError(input, message) {
         removeError(input);
@@ -618,43 +580,90 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function initializeFilterTabs() {
-        const accountTypes = {
-            'all': '.account-option',
-            'bank': '.account-option[data-type="bank"]',
-            'mf': '.account-option[data-type="mf"]',
-            'equity': '.account-option[data-type="equity"]'
-        };
+    function updateFilterTabs() {
+        const allowedTypes = getAllowedAccountTypes();
+        const filterTabsContainer = document.querySelector('.filter-tabs-container');
 
+        // If there is only one allowed account type, hide the filter tabs container.
+        if (allowedTypes.length <= 1) {
+            filterTabsContainer.style.display = 'none';
+            return;
+        }
+
+        // Otherwise make sure the container is visible.
+        filterTabsContainer.style.display = 'block';
+
+        // Now update each filter-tab as before.
         document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Update active state
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-
-                // Filter accounts
-                const filterType = this.dataset.filter;
-                const selector = accountTypes[filterType];
+            const filter = tab.getAttribute('data-filter');
+            // Always show the "all" tab.
+            if (filter === 'all') {
+                tab.style.display = 'inline-block';
+            } else {
+                tab.style.display = allowedTypes.includes(filter) ? 'inline-block' : 'none';
+            }
+            
+            // REMOVED: We use event delegation instead of attaching listeners to each tab
+            // tab.addEventListener('click', function() {...});
+        });
+    }
+    
+    // Setup event delegation for filter tabs
+    const filterTabsContainer = document.querySelector('.filter-tabs-container');
+    if (filterTabsContainer) {
+        filterTabsContainer.addEventListener('click', function(e) {
+            const tab = e.target.closest('.filter-tab');
+            if (!tab) return;
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            // Scroll the tab into view with smooth behavior
+            tab.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+            
+            // Filter accounts
+            const filterType = tab.dataset.filter;
+            const bankSectionsContainer = document.getElementById('bank-sections-container');
+            
+            // Get allowed account types for current use case
+            const allowedTypes = getAllowedAccountTypes();
+            
+            // First, show all sections and then filter
+            const allSections = bankSectionsContainer.querySelectorAll('.bank-section');
+            allSections.forEach(section => {
+                section.style.display = 'none';
                 
-                document.querySelectorAll('.account-option').forEach(option => {
-                    option.style.display = 'none';
-                });
+                // For dynamically generated sections, check their data attributes
+                const accountType = section.querySelector('.account-option')?.getAttribute('data-type');
+                // For static sections, check their classes
+                const sectionClasses = section.classList;
                 
-                document.querySelectorAll(selector).forEach(option => {
-                    option.style.display = 'flex';
-                });
-
-                // Hide empty bank sections
-                document.querySelectorAll('.bank-section').forEach(section => {
-                    // Check if section has any visible accounts
-                    const visibleAccounts = section.querySelectorAll(selector);
-                    section.style.display = visibleAccounts.length > 0 ? 'block' : 'none';
-                });
+                if (filterType === 'all') {
+                    // Show section if either condition is met
+                    if ((sectionClasses.contains('banks') && allowedTypes.includes('bank')) ||
+                        (sectionClasses.contains('mf') && allowedTypes.includes('mf')) ||
+                        (sectionClasses.contains('equity') && allowedTypes.includes('equity')) ||
+                        (accountType && allowedTypes.includes(accountType))) {
+                        section.style.display = 'block';
+                    }
+                } else {
+                    // For specific filter types
+                    const sectionClass = filterType === 'bank' ? 'banks' : filterType;
+                    if ((sectionClasses.contains(sectionClass) && allowedTypes.includes(filterType)) ||
+                        (accountType === filterType && allowedTypes.includes(filterType))) {
+                        section.style.display = 'block';
+                    }
+                }
             });
         });
     }
-
-    initializeFilterTabs();
 
     /**
      * Returns the human‑readable label for a given account type.
@@ -689,14 +698,34 @@ document.addEventListener('DOMContentLoaded', function() {
             .map(option => {
                 // Get the account type; if not present, get the text from the .account-type element.
                 const type = option.getAttribute('data-type') || (option.querySelector('.account-type')?.textContent || '').toLowerCase();
+                
+                // Get bank section and its info elements with null checks
+                const bankSection = option.closest('.bank-section');
+                if (!bankSection) return null; // Skip if bank section not found
+                
+                const bankInfo = bankSection.querySelector('.bank-info');
+                if (!bankInfo) return null; // Skip if bank info not found
+                
+                const bankNameElement = bankInfo.querySelector('span');
+                const bankLogoElement = bankInfo.querySelector('img');
+                const accountNumberElement = option.querySelector('.account-number');
+                
+                // Handle both cases: when logo is an img or when it's an icon
+                let bankLogo = 'icici-logo.png'; // Default fallback
+                if (bankLogoElement) {
+                    bankLogo = bankLogoElement.src;
+                } else if (bankInfo.querySelector('[data-lucide="landmark"]')) {
+                    bankLogo = 'landmark-icon.png'; // Another fallback for icon
+                }
+                
                 return {
                     type,
-                    // Retrieve the bank details from the parent bank section.
-                    bankName: option.closest('.bank-section').querySelector('.bank-info span').textContent,
-                    bankLogo: option.closest('.bank-section').querySelector('.bank-info img').src,
-                    number: option.querySelector('.account-number').textContent
+                    bankName: bankNameElement ? bankNameElement.textContent : 'Unknown Bank',
+                    bankLogo: bankLogo,
+                    number: accountNumberElement ? accountNumberElement.textContent : 'Unknown Account'
                 };
             })
+            .filter(account => account !== null) // Filter out any null accounts from above
             // Only include accounts whose type is allowed for the current use case.
             .filter(account => allowedTypes.includes(account.type.toLowerCase()));
 
@@ -710,6 +739,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Build the HTML for each group.
         const accountsList = document.querySelector('.selected-accounts-list');
+        if (!accountsList) return; // Exit if element not found
+        
         const html = Object.entries(groupedAccounts).map(([type, accounts]) => `
             <div class="account-type-section" data-type="${type}">
                 <div class="type-header">
@@ -740,16 +771,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         accountsList.innerHTML = html;
-    }
-
-    function getTypeLabel(type) {
-        const labels = {
-            'bank': 'Bank Accounts',
-            'mf': 'Mutual Funds',
-            'equity': 'Equity',
-            'other': 'Other Accounts'
-        };
-        return labels[type] || type;
     }
 
     // Consent drawer functionality
@@ -832,15 +853,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call this when the page loads
     updateDateRange();
 
-    const usecaseInput = document.getElementById('usecase-input');
     const loanApprovalConsent = document.getElementById('loan-approval-consent');
     const portfolioManagementConsent = document.getElementById('portfolio-management-consent');
     const creditLineConsent = document.getElementById('credit-line-consent');
     const creditCardConsent = document.getElementById('credit-card-consent');
     const headline = document.getElementById('mobile-input-screen').querySelector('h1');
-
-    // Global state for currently selected use case.
-    let currentUseCase = usecaseInput.value; // e.g., "loan-approval" by default
 
     // Helper: returns allowed account types based on the current use case.
     function getAllowedAccountTypes() {
@@ -864,24 +881,21 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateAccountOptionsByUseCase() {
         const allowedTypes = getAllowedAccountTypes();
 
-        // Loop through each account option and update its display.
+        // Loop through each account option and update its display
         document.querySelectorAll('.account-option').forEach(option => {
             const type = option.getAttribute('data-type');
-            if (allowedTypes.includes(type)) {
-                option.style.display = 'flex';
-            } else {
-                option.style.display = 'none';
-            }
+            // Remove the condition that might be hiding MF and equity options
+            option.style.display = allowedTypes.includes(type) ? 'flex' : 'none';
         });
 
-        // Also update each bank section so that empty sections are hidden.
+        // Update bank sections visibility
         document.querySelectorAll('.bank-section').forEach(section => {
-            const accountOptions = Array.from(section.querySelectorAll('.account-option'));
-            const hasVisible = accountOptions.some(o => getComputedStyle(o).display !== 'none');
-            section.style.display = hasVisible ? 'block' : 'none';
+            const visibleAccounts = Array.from(section.querySelectorAll('.account-option'))
+                .filter(option => getComputedStyle(option).display !== 'none');
+            section.style.display = visibleAccounts.length > 0 ? 'block' : 'none';
         });
 
-        // Output which account types are active.
+        // Log active account types for debugging
         const activeAccountTypes = new Set();
         document.querySelectorAll('.account-option').forEach(option => {
             if (getComputedStyle(option).display !== 'none') {
@@ -957,32 +971,17 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 tab.style.display = allowedTypes.includes(filter) ? 'inline-block' : 'none';
             }
+            
+            // REMOVED: We use event delegation instead of attaching listeners to each tab
+            // tab.addEventListener('click', function() {...});
         });
     }
-
-    /**
-     * When the use case changes, update the global state, refresh consent containers,
-     * update the account options, the mobile account type container, and the filter tabs.
-     */
-    usecaseInput.addEventListener('change', function() {
-        currentUseCase = this.value;
-        updateConsentContainers(); // Updates consent texts & container.
-        updateAccountOptionsByUseCase();
-        updateAccountTypeContainer();
-        updateFilterTabs();
-
-        // Reset filter tabs to "all" for consistency.
-        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-        const allTab = document.querySelector('.filter-tab[data-filter="all"]');
-        if (allTab) {
-            allTab.classList.add('active');
-        }
-    });
 
     // On initial load, update account options, account type container and filter tabs.
     updateAccountOptionsByUseCase();
     updateAccountTypeContainer();
     updateFilterTabs();
+    updateDiscoveredAccountsCount();
 
     // Function to update consent containers based on selected use case
     function updateConsentContainers() {
@@ -1065,11 +1064,6 @@ document.addEventListener('DOMContentLoaded', function() {
         drawerContent.innerHTML = content;
     }
 
-    // Ensure usecaseInput is defined before adding the event listener
-    if (usecaseInput) {
-        usecaseInput.addEventListener('change', updateConsentContainers);
-    }
-
     // Initialize consent containers on page load
     updateConsentContainers();
 
@@ -1114,46 +1108,176 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('color-input').click(); // Trigger the click on the hidden color input
     });
 
-    // Handle Send OTP button click
+    // Handle Send OTP button click - using a proper global flag to prevent duplicate listeners
     const sendOtpButton = document.querySelector('.proceed-button');
     const customerInput = document.getElementById('phone-input');
 
     // Replace with your Google Apps Script URL
     const googleSheetUrl = 'https://script.google.com/macros/s/AKfycbwT17orum0gqOtbZp2hD3kGrzmvpY5-KEonOF4D6-Mv09nMF7wWBBTbLQ7bs9kUaEF-/exec';
+    // Set this to false for demo mode to skip the actual Google Sheets API call
+    const enableGoogleSheetsIntegration = false;
 
-    // Flag to check if the event listener is already added
-    let isListenerAdded = false;
-
-    if (!isListenerAdded) {
-        sendOtpButton.addEventListener('click', () => {
-            const mobileNumber = customerInput.value;
-            console.log(`Mobile Number: ${mobileNumber}`); // Log the mobile number
-
-            // Send the mobile number to Google Sheets
-            fetch(googleSheetUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `mobileNumber=${encodeURIComponent(mobileNumber)}`,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+    // Creating a custom event to handle the OTP submission
+    // This ensures we don't have duplicate event listeners
+    function setupOTPButtonHandler() {
+        // Remove any existing listeners first by cloning and replacing
+        const oldButton = sendOtpButton;
+        const newButton = oldButton.cloneNode(true);
+        oldButton.parentNode.replaceChild(newButton, oldButton);
+        
+        // Re-assign the global reference to point to the new button
+        const proceedButton = newButton;
+        
+        // Add the event listener to the new button
+        newButton.addEventListener('click', function() {
+            const currentScreen = screensArray[currentScreenIndex];
+            
+            // Only handle OTP sending if we're on the mobile input screen
+            if (currentScreen.id === 'mobile-input-screen') {
+                const mobileNumber = customerInput?.value;
+                if (!mobileNumber) {
+                    showError(customerInput, 'Please enter your mobile number');
+                    return;
                 }
-                return response.text();
-            })
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+                
+                if (!isValidIndianMobileNumber(mobileNumber)) {
+                    showError(customerInput, 'Please enter a valid 10-digit mobile number');
+                    return;
+                }
+                
+                // Show OTP input field if not already shown
+                const otpInputGroup = document.querySelector('.otp-input-group');
+                const otpInput = document.getElementById('otp-input');
+                
+                if (!otpInputGroup.classList.contains('show')) {
+                    // First click – show the OTP input and send mobile number to Google Sheets
+                    otpInputGroup.style.display = 'flex';
+                    otpInputGroup.offsetHeight; // Force reflow
+                    otpInputGroup.classList.add('show');
+                    this.textContent = 'Verify OTP';
+                    this.disabled = true;
+                    otpInput.focus();
+                    
+                    console.log(`Mobile Number: ${mobileNumber}`); // Log the mobile number
+                    
+                    // Create a timeout promise that rejects after 5 seconds
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('Request timed out')), 5000);
+                    });
+                    
+                    // Function to enable the button and continue with the demo flow
+                    const continueWithDemo = () => {
+                        this.disabled = false;
+                        console.log('Continuing with demo flow...');
+                    };
+                    
+                    // Only attempt the fetch if Google Sheets integration is enabled
+                    if (enableGoogleSheetsIntegration) {
+                        // Send the mobile number to Google Sheets with better error handling
+                        Promise.race([
+                            fetch(googleSheetUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: `mobileNumber=${encodeURIComponent(mobileNumber)}`,
+                            }),
+                            timeoutPromise
+                        ])
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(data => {
+                            console.log('Success:', data);
+                            // Enable the button after successful OTP sending
+                            this.disabled = false;
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            // More descriptive error message based on the type of error
+                            if (error.message === 'Failed to fetch') {
+                                console.log('Network error or CORS issue. This is expected in demo mode.');
+                            } else if (error.message === 'Request timed out') {
+                                console.log('Request timed out. This is expected in demo mode.');
+                            } else {
+                                console.log(`API error: ${error.message}. This is expected in demo mode.`);
+                            }
+                            
+                            // Enable the button if there was an error
+                            continueWithDemo();
+                        });
+                    } else {
+                        // In demo mode, just log and continue without attempting the fetch
+                        console.log('Google Sheets integration is disabled. Skipping API call in demo mode.');
+                        setTimeout(continueWithDemo, 500); // Add a small delay to simulate processing
+                    }
+                    
+                    return;
+                }
+                
+                // Second click – verify OTP
+                if (otpInput.value.length !== 6) {
+                    showError(otpInput, 'Please enter a valid 6-digit OTP');
+                    return;
+                }
+                
+                // If OTP validation passes, proceed to the next screen
+                const nextScreen = screensArray[currentScreenIndex + 1];
+                if (nextScreen) {
+                    switchScreen(currentScreen, nextScreen);
+                    currentScreenIndex++;
+                    // Update proceed button text for next screen
+                    updateProceedButton();
+                }
+            } else {
+                // For all other screens, handle navigation normally
+                switch (currentScreen.id) {
+                    case 'bank-selection-screen': {
+                        // Example validation: require at least one bank to have been selected
+                        if (selectedBankNames.size === 0) {
+                            alert('Please select at least one bank to proceed');
+                            return;
+                        }
+                        break;
+                    }
+                    case 'account-selection-screen': {
+                        // Gather the selected accounts and ensure there is at least one
+                        const selectedAccounts = Array.from(document.querySelectorAll('.account-option input[type="checkbox"]:checked'))
+                            .map(checkbox => {
+                                const accountOption = checkbox.closest('.account-option');
+                                const bankSection = accountOption.closest('.bank-section');
+                                const bankInfo = bankSection.querySelector('.bank-info');
+                                return {
+                                    bankName: bankInfo.querySelector('span').textContent,
+                                    bankLogo: bankInfo.querySelector('img')?.src,
+                                    type: accountOption.querySelector('.account-type').textContent,
+                                    number: accountOption.querySelector('.account-number').textContent
+                                };
+                            });
+                            
+                        updateSelectedAccountsList(selectedAccounts);
+                        break;
+                    }
+                    // Additional validations for other screens can be added here if needed.
+                }
+                
+                // If validations pass, move to the next screen if available in the array.
+                if (currentScreenIndex < screensArray.length - 1) {
+                    const fromScreen = screensArray[currentScreenIndex];
+                    const toScreen = screensArray[++currentScreenIndex];
+                    switchScreen(fromScreen, toScreen, true);
+                }
+            }
         });
-
-        // Set the flag to true after adding the listener
-        isListenerAdded = true;
+        
+        return newButton; // Return the new button in case we need it
     }
+
+    // Initialize OTP button handler after ALL navigation logic is defined
+    setupOTPButtonHandler();
 
     const getInTouchPill = document.getElementById('get-in-touch-pill');
     const contactInfo = getInTouchPill.querySelector('.contact-info');
@@ -1327,7 +1451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     selectedBankNames.add(bank.name);
                     bankItem.classList.add('selected');
                 }
-                updateSelectedBankList();
+                onBankSelectionChanged();
             });
             
             bankListContainer.appendChild(bankItem);
@@ -1343,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update the global set with the names of banks currently being rendered
         displayedBanks = new Set(banksToRender.map(bank => bank.name));
 
-        // Reinitialize Lucide icons for dynamically added elements
+        // Reinitialize Lucide icons for dynamic elements
         lucide.createIcons();
 
         // Refresh the proceed button state after updating the selected bank list.
@@ -1371,16 +1495,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add fade-out class to trigger CSS transition
                 existingIcon.classList.add('fade-out');
                 setTimeout(() => {
-                    // Replace the icon after fade-out completed
-                    existingIcon.outerHTML = `<i data-lucide="${iconName}" class="search-icon fade-in" style="cursor: ${iconName === 'x' ? 'pointer' : 'default'}"></i>`;
-                    lucide.createIcons();
-                    // Remove fade-in class after the fade in animation is done
-                    setTimeout(() => {
-                        const icon = searchInputGroup.querySelector('.search-icon');
-                        if (icon) {
-                            icon.classList.remove('fade-in');
-                        }
-                    }, fadeInTime);
+                    // Check if element still has a parent before modifying outerHTML
+                    if (existingIcon.parentNode) {
+                        existingIcon.outerHTML = `<i data-lucide="${iconName}" class="search-icon fade-in" style="cursor: ${iconName === 'x' ? 'pointer' : 'default'}"></i>`;
+                        lucide.createIcons();
+                        // Remove fade-in class after the fade in animation is done
+                        setTimeout(() => {
+                            const icon = searchInputGroup.querySelector('.search-icon');
+                            if (icon) {
+                                icon.classList.remove('fade-in');
+                            }
+                        }, fadeInTime);
+                    }
                 }, fadeOutTime);
             }
         } else {
@@ -1529,29 +1655,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         switch (activeScreen.id) {
             case 'mobile-input-screen':
-                // For the mobile input screen, show "Send OTP" and disable the button until a valid phone number is entered.
                 proceedButton.textContent = 'Send OTP';
                 const phoneInput = document.getElementById('phone-input');
-                // Enable only if the phone input is exactly 10 digits (adjust your validation as needed)
                 proceedButton.disabled = !(phoneInput && phoneInput.value.trim().length === 10);
                 break;
             
             case 'bank-selection-screen':
-                // For the bank selection screen, show "Fetch Accounts" and disable until at least one bank is selected.
                 proceedButton.textContent = 'Fetch Accounts';
-                // (Assuming selected banks are rendered as elements with the class ".selected-bank-item")
                 const selectedBanks = document.querySelectorAll('.selected-bank-item');
                 proceedButton.disabled = selectedBanks.length === 0;
                 break;
             
             case 'account-selection-screen':
-                // For the account selection screen, show "Link Accounts" and disable until at least one account is checked.
                 proceedButton.textContent = 'Proceed';
+                // Get the current selected account count
+                const selectedAccounts = document.querySelectorAll('.account-option input[type="checkbox"]:checked').length;
+                proceedButton.disabled = selectedAccounts === 0;
                 break;
             
             case 'confirmation-screen':
-                // For the confirmation screen, show "Approve and Share Data"
-                // and disable the button until all the required consents are checked.
                 proceedButton.textContent = 'Approve Consent';
                 break;
             
@@ -1571,6 +1693,179 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('phone-input')?.addEventListener('input', updateProceedButton);
 
     // Similarly, if selecting banks or accounts triggers events, ensure those events also call updateProceedButton.
+
+    function updateDiscoveredAccountsCount() {
+        const allowedTypes = getAllowedAccountTypes();
+        const totalAllowedAccounts = document.querySelectorAll(
+            allowedTypes.map(type => `.account-option[data-type="${type}"]`).join(',')
+        ).length;
+        
+        // Update the discovered accounts text
+        const discoveredAccountsSpan = document.querySelector('.discovered-accounts span');
+        if (discoveredAccountsSpan) {
+            discoveredAccountsSpan.textContent = `Showing ${totalAllowedAccounts} accounts discovered for`;
+        }
+    }
+
+    function generateBankSections() {
+        const bankSectionsContainer = document.getElementById('bank-sections-container');
+        const allowedTypes = getAllowedAccountTypes();
+        
+        // Keep existing MF and equity sections if they're allowed in current use case
+        const existingNonBankSections = Array.from(bankSectionsContainer.querySelectorAll('.bank-section'))
+            .filter(section => {
+                const accountType = section.querySelector('.account-option')?.getAttribute('data-type');
+                return accountType && accountType !== 'bank' && allowedTypes.includes(accountType);
+            });
+
+        // Clear only bank sections
+        bankSectionsContainer.querySelectorAll('.bank-section').forEach(section => {
+            const accountType = section.querySelector('.account-option')?.getAttribute('data-type');
+            if (accountType === 'bank') {
+                section.remove();
+            }
+        });
+
+        // Create sections for each selected bank
+        selectedBankNames.forEach(bankName => {
+            const bank = banks.find(b => b.name === bankName);
+            if (!bank) return;
+
+            const bankSection = document.createElement('div');
+            bankSection.className = 'bank-section';
+            
+            // Generate mock accounts based on bank type
+            const mockAccounts = generateMockAccounts(bank.name);
+            
+            bankSection.innerHTML = `
+                <div class="bank-info">
+                    <div class="header-left-group">
+                        ${bank.logo === "landmark" 
+                            ? `<i data-lucide="landmark" class="bank-logo" style="color: var(--brand-color);"></i>`
+                            : `<img src="${bank.logo}" alt="${bank.name}" class="bank-logo">`
+                        }
+                        <span>${bank.name}</span>
+                    </div>
+                    <button class="select-all">Unselect All</button>
+                </div>
+                <div class="account-options">
+                    ${mockAccounts.map(account => `
+                        <label class="account-option" data-type="${account.type}">
+                            <div class="checkbox-container">
+                                <input type="checkbox" name="account" checked>
+                                <span class="checkbox-checkmark"></span>
+                            </div>
+                            <div class="account-details">
+                                <div class="account-type">${account.accountType}</div>
+                                <div class="account-number">Account No: ${account.accountNumber}</div>
+                            </div>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+
+            // Insert bank sections at the beginning of the container
+            bankSectionsContainer.insertBefore(bankSection, bankSectionsContainer.firstChild);
+        });
+
+        // Re-append existing non-bank sections
+        existingNonBankSections.forEach(section => {
+            bankSectionsContainer.appendChild(section);
+        });
+
+        // Reinitialize Lucide icons for dynamic elements
+        lucide.createIcons();
+
+        // Update the "Select All" buttons for all bank sections
+        // to ensure their text is consistent with the checkbox states
+        document.querySelectorAll('.bank-section').forEach(section => {
+            updateSelectAllButtonText(section);
+            updateAccountOptionStyles(section);
+        });
+
+        // Update the counts after generating sections
+        updateDiscoveredAccountsCount();
+        updateSelectedCount();
+    }
+
+    function generateMockAccounts(bankName) {
+        // Generate random account numbers
+        const generateAccountNumber = () => 'XXXXXXXX' + Math.floor(1000 + Math.random() * 9000);
+        
+        // Default account types for each bank
+        const accounts = [
+            {
+                type: 'bank',
+                accountType: 'Savings Account',
+                accountNumber: generateAccountNumber()
+            },
+            {
+                type: 'bank',
+                accountType: 'Current Account',
+                accountNumber: generateAccountNumber()
+            }
+        ];
+        return accounts;
+    }
+
+    // Add this to your existing bank selection click handler
+    function onBankSelectionChanged() {
+        generateBankSections();
+        updateSelectedBankList();
+    }
+
+    backButton.addEventListener('click', function () {
+        if (currentScreenIndex > 0) {
+            const fromScreen = screensArray[currentScreenIndex];
+            
+            // If we're on the account selection screen and bank selection was skipped
+            if (fromScreen.id === 'account-selection-screen') {
+                const allowedTypes = getAllowedAccountTypes();
+                if (!allowedTypes.includes('bank')) {
+                    // Skip back past bank selection screen
+                    currentScreenIndex -= 2;
+                } else {
+                    currentScreenIndex--;
+                }
+            } else {
+                currentScreenIndex--;
+            }
+            
+            const targetScreen = screensArray[currentScreenIndex];
+            switchScreen(fromScreen, targetScreen, false);
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('edit-phone')) {
+            const currentScreen = screensArray[currentScreenIndex];
+            const targetIndex = screensArray.findIndex(
+                (screen) => screen.id === 'mobile-input-screen'
+            );
+            if (targetIndex !== -1 && currentScreen.id !== 'mobile-input-screen') {
+                switchScreen(currentScreen, screensArray[targetIndex], false);
+                currentScreenIndex = targetIndex;
+                hideOtpInput();
+            }
+        }
+    });
+
+    document.querySelector('.link-more').addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentScreen = screensArray[currentScreenIndex];
+        // Ensure that the action only applies if we're on the confirmation screen.
+        if (currentScreen.id === 'confirmation-screen') {
+            const targetIndex = screensArray.findIndex(
+                (screen) => screen.id === 'account-selection-screen'
+            );
+            if (targetIndex !== -1) {
+                switchScreen(currentScreen, screensArray[targetIndex], false);
+                currentScreenIndex = targetIndex;
+            }
+        }
+    });
 
 });
 

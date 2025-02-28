@@ -891,6 +891,7 @@ body {
     padding-left: 0;
     padding-right: 0;
     flex-shrink: 0;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 
     &::-webkit-scrollbar {
         display: none;
