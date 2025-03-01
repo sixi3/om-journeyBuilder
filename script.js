@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     pageTitle.textContent = 'Select Accounts';
                     break;
                 case 'credit-line':
-                    pageTitle.textContent = 'Select Investment Accounts';
+                    pageTitle.textContent = 'Select DEMAT Accounts';
                     break;
                 case 'credit-card':
                     pageTitle.textContent = 'Select Bank Accounts';
@@ -744,16 +744,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const otpInput = document.getElementById('otp-input');
+    
+    // Function to validate OTP and update button state
+    function validateOtpAndUpdateButton() {
+        const otpValue = otpInput.value.trim();
+        const proceedButton = document.querySelector('.proceed-button');
+        
+        if (proceedButton) {
+            // Button should only be enabled when exactly 6 digits are entered
+            proceedButton.disabled = otpValue.length !== 6;
+            console.log('OTP validation - Length:', otpValue.length, 'Button disabled:', proceedButton.disabled);
+        }
+    }
+    
     otpInput.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '').slice(0, 6); // Limit to 6 digits
         removeError(this);
-        proceedButton.disabled = this.value.length !== 6;
+        validateOtpAndUpdateButton();
     });
 
     // Add this to ensure button is disabled when OTP input is cleared
     otpInput.addEventListener('keydown', function(e) {
         if (e.key === 'Backspace' || e.key === 'Delete') {
-            proceedButton.disabled = true;
+            setTimeout(validateOtpAndUpdateButton, 0); // Use setTimeout to run after the value is updated
         }
     });
 
@@ -1125,6 +1138,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Credit line - Visible options:', visibleOptions.length);
             console.log('Credit line - Checked boxes:', checkedBoxes.length);
             
+            // Update the "Select All" button text for all visible bank sections
+            document.querySelectorAll('.bank-section').forEach(section => {
+                if (section.style.display !== 'none') {
+                    updateSelectAllButtonText(section);
+                }
+            });
+            
             // Force update of the proceed button
             updateProceedButton();
             return;
@@ -1445,8 +1465,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     otpInputGroup.offsetHeight; // Force reflow
                     otpInputGroup.classList.add('show');
                     this.textContent = 'Verify OTP';
-                    this.disabled = true;
+                    this.disabled = true; // Initially disabled
                     otpInput.focus();
+                    otpInput.value = ''; // Ensure it's empty
+                    
+                    // Force the button to stay disabled until proper OTP length
+                    proceedButton.disabled = true;
                     
                     console.log(`Mobile Number: ${mobileNumber}`); // Log the mobile number
                     
@@ -1897,6 +1921,17 @@ document.addEventListener('DOMContentLoaded', function() {
      * Filter the bank list accordingly and update the icon.
      */
     if (bankSearchInput) {
+        // Make sure the input is focusable on mobile
+        bankSearchInput.setAttribute('inputmode', 'text');
+        
+        // Add focus event to ensure mobile keyboard appears
+        bankSearchInput.addEventListener('touchstart', function(e) {
+            console.log('Touch start on bank search input');
+            // Prevent default only if needed
+            // e.preventDefault();
+            this.focus();
+        });
+        
         bankSearchInput.addEventListener('input', function () {
             const searchVal = bankSearchInput.value.toLowerCase();
             const bankListHeader = document.querySelector('.bank-list-header h2');
@@ -1921,20 +1956,37 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     if (searchInputGroup) {
         // Using both click and touchend events to ensure it works on all devices
-    ['click', 'touchend'].forEach(eventType => {
+        ['click', 'touchend', 'touchstart'].forEach(eventType => {
             searchInputGroup.addEventListener(eventType, function (e) {
-                // Prevent default behavior for touchend to avoid any interference
-            if (eventType === 'touchend') {
-                    e.preventDefault();
+                // Log the event for debugging
+                console.log(`${eventType} event on search input group`);
+                
+                // For touch events, prevent default behavior to avoid any interference
+                if (eventType === 'touchend' || eventType === 'touchstart') {
+                    // Don't prevent default on the input itself to allow typing
+                    if (!e.target.matches('#bank-search')) {
+                        e.preventDefault();
+                    }
                 }
                 
+                // Handle clicking on the search icon
                 const clickedIcon = e.target.closest('.search-icon');
                 if (clickedIcon && bankSearchInput.value.trim().length > 0) {
                     console.log(`${eventType} event on X icon, clearing search`);
                     bankSearchInput.value = '';
                     bankSearchInput.dispatchEvent(new Event('input'));
                     updateSearchIcon();
-                    bankSearchInput.focus(); // Keep the search input active after clearing.
+                    
+                    // Focus the input after a slight delay to ensure mobile keyboard appears
+                    setTimeout(() => {
+                        bankSearchInput.focus();
+                    }, 10);
+                }
+                
+                // If clicking on the search input group but not on the input itself or icon,
+                // focus the input (helps with mobile)
+                if (!e.target.matches('#bank-search') && !clickedIcon && eventType === 'touchstart') {
+                    bankSearchInput.focus();
                 }
             });
         });
@@ -1943,6 +1995,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSelectedBankList() {
         const selectedBankListContainer = document.querySelector('.selected-bank-list');
         if (!selectedBankListContainer) return;
+
+        // Track previously selected banks for animation purposes
+        const previouslySelected = new Set();
+        selectedBankListContainer.querySelectorAll('.selected-bank-item').forEach(item => {
+            const bankName = item.querySelector('span')?.textContent.trim();
+            if (bankName) previouslySelected.add(bankName);
+        });
 
         // Clear the container
         selectedBankListContainer.innerHTML = '';
@@ -1965,6 +2024,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const selectedItem = document.createElement('div');
                     selectedItem.classList.add('selected-bank-item');
+                    
+                    // Add pop-in animation for newly added banks
+                    if (!previouslySelected.has(bank.name)) {
+                        selectedItem.classList.add('pop-in');
+                        // Remove the animation class after it completes
+                        setTimeout(() => {
+                            selectedItem.classList.remove('pop-in');
+                        }, 400); // Animation duration is 400ms
+                    }
+                    
                     selectedItem.innerHTML = `
                         <div class="bank-logo-container">
                             ${bankLogoHTML}
@@ -1979,15 +2048,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     const removeBtn = selectedItem.querySelector('.remove-bank');
                     removeBtn.addEventListener('click', function(e) {
                         e.stopPropagation(); // Prevent bubbling to parent elements.
-                        selectedBankNames.delete(bank.name);
-                        // Remove selected class from bank list items (if currently rendered)
-                        document.querySelectorAll('.bank-list .bank-item').forEach(item => {
-                            const itemName = item.querySelector('span').textContent.trim();
-                            if (itemName === bank.name) {
-                                item.classList.remove('selected');
-                            }
-                        });
-                        updateSelectedBankList();
+                        
+                        // Add pop-out animation before removing
+                        selectedItem.style.animation = 'popIn 0.4s ease-out reverse';
+                        
+                        // Wait for animation to complete before removing from data structure
+                        setTimeout(() => {
+                            selectedBankNames.delete(bank.name);
+                            // Remove selected class from bank list items (if currently rendered)
+                            document.querySelectorAll('.bank-list .bank-item').forEach(item => {
+                                const itemName = item.querySelector('span').textContent.trim();
+                                if (itemName === bank.name) {
+                                    item.classList.remove('selected');
+                                }
+                            });
+                            updateSelectedBankList();
+                        }, 400); // Animation duration is 400ms
                     });
 
                     selectedBankListContainer.appendChild(selectedItem);
@@ -2033,9 +2109,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         switch (activeScreen.id) {
             case 'mobile-input-screen':
-                proceedButton.textContent = 'Send OTP';
-                const phoneInput = document.getElementById('phone-input');
-                proceedButton.disabled = !(phoneInput && phoneInput.value.trim().length === 10);
+                const otpInputGroup = document.querySelector('.otp-input-group');
+                
+                if (otpInputGroup && otpInputGroup.classList.contains('show')) {
+                    // If OTP input is visible, button should say "Verify OTP" and use our validation function
+                    proceedButton.textContent = 'Verify OTP';
+                    validateOtpAndUpdateButton(); // Call our validation function to set disabled state correctly
+                } else {
+                    // Default case - showing "Send OTP" for phone number input
+                    proceedButton.textContent = 'Send OTP';
+                    const phoneInput = document.getElementById('phone-input');
+                    proceedButton.disabled = !(phoneInput && phoneInput.value.trim().length === 10);
+                }
                 break;
             
             case 'bank-selection-screen':
@@ -2246,8 +2331,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedInstitutions = [];
                 currentInstitutionIndex = 0;
                 verifiedInstitutions = [];
+                skippedInstitutions = [];
                 closeOTPDrawer();
-            } 
+            }
             else if (fromScreen.id === 'account-selection-screen') {
                 const allowedTypes = getAllowedAccountTypes();
                 if (!allowedTypes.includes('bank')) {
@@ -2312,6 +2398,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedInstitutions = [];
                 currentInstitutionIndex = 0;
                 verifiedInstitutions = [];
+                skippedInstitutions = [];
                 
                 // Update current screen index before switching
                 currentScreenIndex = targetIndex;
@@ -2325,6 +2412,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedInstitutions = [];
     let currentInstitutionIndex = 0;
     let verifiedInstitutions = [];
+    let skippedInstitutions = [];
     
     function initializeOTPVerification() {
         // Set up event listeners for OTP verification
@@ -2340,8 +2428,28 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle "Unable to receive OTP" link
         unableToReceiveLink.addEventListener('click', function(e) {
             e.preventDefault();
-            // You can implement custom logic here, like showing alternative verification options
-            alert('Please contact customer support for assistance with OTP verification.');
+            
+            // Show brief notification that we're skipping
+            const verifyButton = document.querySelector('.verify-otp-button');
+            const originalText = verifyButton.textContent;
+            verifyButton.disabled = true;
+            verifyButton.style.backgroundColor = "#FFFFFF";
+            verifyButton.style.color = "#666666";
+            verifyButton.textContent = 'Skipping...';
+            
+            // Track the skipped institution
+            skippedInstitutions.push(selectedInstitutions[currentInstitutionIndex]);
+            
+            // After a short delay, proceed to the next institution
+            setTimeout(() => {
+                verifyButton.style.backgroundColor = "";
+                verifyButton.style.color = "";
+                verifyButton.textContent = originalText;
+                verifyButton.disabled = false;
+                // Skip current institution and proceed to the next one
+                currentInstitutionIndex++;
+                showOTPDrawerForCurrentInstitution();
+            }, 800);
         });
         
         // Add input validation for OTP
@@ -2403,6 +2511,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset verification state
         currentInstitutionIndex = 0;
         verifiedInstitutions = [];
+        skippedInstitutions = [];
         
         // Get all selected financial institutions
         selectedInstitutions = getSelectedInstitutions();
@@ -2486,6 +2595,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Make sure the currentScreenIndex is updated correctly
             currentScreenIndex = screensArray.findIndex(screen => screen.id === 'confirmation-screen');
             
+            // Filter out skipped institutions before showing the confirmation screen
+            filterAccountsByVerifiedInstitutions();
+            
             switchScreen(accountSelectionScreen, confirmationScreen);
             return;
         }
@@ -2561,7 +2673,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalText = verifyButton.textContent;
             verifyButton.disabled = true;
             verifyButton.style.backgroundColor = "#FFFFFF";
-            verifyButton.style.color = "dark-green";
+            verifyButton.style.color = "darkgreen";
             verifyButton.textContent = 'Verified ✓';
             
             // After a short delay, proceed to the next institution
@@ -2607,6 +2719,162 @@ document.addEventListener('DOMContentLoaded', function() {
                 drawerBackdrop.style.display = 'none';
             }, 300); // Match the transition duration in CSS
         }
+    }
+    
+    /**
+     * Filters account data for the confirmation screen to only show accounts from verified institutions.
+     * This ensures that skipped institutions' accounts are excluded from the confirmation screen
+     * without affecting the original selected accounts in the account-selection screen.
+     */
+    function filterAccountsByVerifiedInstitutions() {
+        // If no institutions were selected or all OTP verifications were skipped, don't filter anything
+        if (selectedInstitutions.length === 0) {
+            return;
+        }
+        
+        // If OTP verification was not needed or no institutions were verified/skipped, don't filter
+        if (verifiedInstitutions.length === 0 && skippedInstitutions.length === 0) {
+            return;
+        }
+        
+        console.log(`Filtering accounts: ${verifiedInstitutions.length} verified, ${skippedInstitutions.length} skipped`);
+        
+        // Get all verified institution names
+        const verifiedNames = verifiedInstitutions.map(inst => inst.name);
+        
+        // Instead of unchecking boxes, we'll create a filtered version of the data for the confirmation screen
+        // by temporarily marking skipped institutions' accounts with a data attribute
+        
+        // Get all bank sections
+        const bankSections = document.querySelectorAll('.bank-section');
+        
+        // First, remove any existing data-skipped attributes to start fresh
+        bankSections.forEach(section => {
+            section.removeAttribute('data-skipped');
+        });
+        
+        // Mark sections for skipped institutions
+        bankSections.forEach(section => {
+            const bankInfo = section.querySelector('.bank-info');
+            if (bankInfo) {
+                const bankName = bankInfo.querySelector('span').textContent;
+                
+                // If this bank is not in the verified list, mark it as skipped
+                if (!verifiedNames.includes(bankName)) {
+                    section.setAttribute('data-skipped', 'true');
+                    console.log(`Marked institution as skipped: ${bankName}`);
+                }
+            }
+        });
+        
+        // Now override the updateSelectedAccountsList function temporarily to filter out skipped institutions
+        const originalUpdateSelectedAccountsList = updateSelectedAccountsList;
+        
+        updateSelectedAccountsList = function() {
+            // Get the allowed account types based on the current use case.
+            const allowedTypes = getAllowedAccountTypes().map(t => t.toLowerCase());
+    
+            // Retrieve the selected accounts, but exclude those from skipped institutions
+            const selectedAccountElements = Array.from(
+                document.querySelectorAll('.account-option input[type="checkbox"]:checked')
+            )
+            .map(checkbox => checkbox.closest('.account-option'))
+            .filter(option => {
+                // Skip accounts from institutions that were marked as skipped
+                const bankSection = option.closest('.bank-section');
+                return !bankSection || !bankSection.hasAttribute('data-skipped');
+            });
+    
+            // Map the account options to an object containing the details we need.
+            const selectedAccounts = selectedAccountElements
+                .map(option => {
+                    // Get the account type; if not present, get the text from the .account-type element.
+                    const type = option.getAttribute('data-type') || (option.querySelector('.account-type')?.textContent || '').toLowerCase();
+                    
+                    // Get bank section and its info elements with null checks
+                    const bankSection = option.closest('.bank-section');
+                    if (!bankSection) return null; // Skip if bank section not found
+                    
+                    const bankInfo = bankSection.querySelector('.bank-info');
+                    if (!bankInfo) return null; // Skip if bank info not found
+                    
+                    const bankNameElement = bankInfo.querySelector('span');
+                    const bankLogoElement = bankInfo.querySelector('img');
+                    const accountNumberElement = option.querySelector('.account-number');
+                    
+                    // Handle both cases: when logo is an img or when it's an icon
+                    let bankLogo = 'icici-logo.svg'; // Default fallback
+                    if (bankLogoElement) {
+                        bankLogo = bankLogoElement.src;
+                    } else if (bankInfo.querySelector('[data-lucide="landmark"]')) {
+                        bankLogo = 'landmark-icon.png'; // Another fallback for icon
+                    }
+                    
+                    return {
+                        type,
+                        bankName: bankNameElement ? bankNameElement.textContent : 'Unknown Bank',
+                        bankLogo: bankLogo,
+                        number: accountNumberElement ? accountNumberElement.textContent : 'Unknown Account'
+                    };
+                })
+                .filter(account => account !== null) // Filter out any null accounts from above
+                // Only include accounts whose type is allowed for the current use case.
+                .filter(account => allowedTypes.includes(account.type.toLowerCase()));
+    
+            // Group the selected accounts by type (if needed for display grouping).
+            const groupedAccounts = selectedAccounts.reduce((acc, account) => {
+                const typeKey = account.type.toLowerCase();
+                if (!acc[typeKey]) acc[typeKey] = [];
+                acc[typeKey].push(account);
+                return acc;
+            }, {});
+    
+            // Build the HTML for each group.
+            const accountsList = document.querySelector('.selected-accounts-list');
+            if (!accountsList) return; // Exit if element not found
+            
+            const html = Object.entries(groupedAccounts).map(([type, accounts]) => `
+                <div class="account-type-section" data-type="${type}">
+                    <div class="type-header">
+                        <span class="type-label">${getTypeLabel(type)}</span>
+                        <span class="type-count">${accounts.length}</span>
+                    </div>
+                    <div class="type-accounts">
+                        ${accounts.map(account => `
+                            <div class="selected-account-item">
+                                <div class="bank-details">
+                                    <img src="${account.bankLogo}" alt="${account.bankName}" class="bank-logo">
+                                    <div class="account-info">
+                                        <!-- Display the bank name rather than the type -->
+                                        <div class="bank-name">${account.bankName}</div>
+                                        <div class="account-number">${account.number.replace(/Account No: /, '')}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+    
+            // Update the confirmation header with the total count of selected accounts.
+            const headerEl = document.querySelector('.selected-accounts-header h2');
+            if (headerEl) {
+                headerEl.textContent = `Selected Accounts (${selectedAccounts.length})`;
+            }
+    
+            accountsList.innerHTML = html;
+            
+            // Restore the original function after this call completes
+            updateSelectedAccountsList = originalUpdateSelectedAccountsList;
+            
+            // Clean up the data-skipped attributes
+            bankSections.forEach(section => {
+                section.removeAttribute('data-skipped');
+            });
+        };
+        
+        // Call the temporarily modified function
+        updateSelectedAccountsList();
     }
 
     // Add a click event listener to the "Get Started" button in the popup
