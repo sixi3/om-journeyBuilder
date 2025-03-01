@@ -157,7 +157,6 @@ body {
     font-weight: 600;
     margin: 0 0 8px 0;
 }
-
 .main-content p {
     text-align: center;
     color: #666;
@@ -527,7 +526,7 @@ body {
     height: 40px;
     padding: 8px 12px;
     padding-right: 36px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #D5EEDD;
     border-radius: 8px;
     font-family: 'DM sans', sans-serif;
     font-size: 14px;
@@ -601,8 +600,8 @@ body {
 
 /* Checked state */
 .checkbox-container input[type="checkbox"]:checked ~ .checkbox-checkmark {
-    background-color: var(--brand-color);
-    border-color: var(--brand-color);
+    background-color: var(--brand-color, #722DAA);
+    border-color: var(--brand-color, #722DAA);
 }
 
 /* Checkmark icon */
@@ -804,12 +803,24 @@ body {
 /* Position the search icon absolutely within the group */
 .search-input-group .search-icon {
     position: absolute;
-    right: 10px;         /* Adjust the right spacing */
+    right: 16px;         /* Adjust the right spacing */
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;         /* Make sure the icon is above the input field */
     pointer-events: auto; /* Ensure the icon receives click events */
     cursor: pointer;
+    /* Adding touch-specific properties to make it more responsive on mobile */
+    -webkit-tap-highlight-color: transparent; /* Remove highlight on tap */
+    touch-action: manipulation; /* Optimize for touch */
+}
+
+/* Position the search icon on the right edge */
+.search-input-group .search-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 18px;
+    color: var(--brand-color);
+    placeholder-color: var(--brand-color);
 }
 
 /* Update animations */
@@ -1056,7 +1067,7 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(94, 93, 93, 0.9);   
     opacity: 0; /* Start hidden */
-    transition: opacity 0.2s ease-in-out; /* Smooth transition */
+    transition: opacity 0.15s ease-in-out; /* Reduced from 0.2s to 0.15s */
     font-family: 'DM Sans', sans-serif;
 }
 
@@ -1716,30 +1727,41 @@ body {
     align-items: flex-start;
     gap: 12px;
     background: white;
-    padding: 16px;
     border-radius: 12px;
     cursor: pointer;
-    border: 1px solid #E5E7EB;
     transition: all 0.2s ease;
     margin-bottom: 16px;
 }
 
-.consent-option:has(input[type="checkbox"]:checked) {
-    border-color: var(--brand-color);
+/* Use the 'unchecked' class added by JavaScript to grey out content */
+.consent-option.unchecked .consent-value,
+.consent-option.unchecked .consent-label,
+.consent-option.unchecked .arrow-icon, 
+.consent-option.unchecked .consent-details-table {
+    color: #bdbdbd !important;
+    box-shadow: none;
+    transition: color 0.2s ease;
 }
 
-.consent-option:hover {
-    border-color: var(--brand-color);
-    background: rgba(var(--brand-rgb), 0.05);
+/* Only change the checkbox appearance */
+.checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
+    background-color: var(--brand-color, #722DAA);
+    border-color: var(--brand-color, #722DAA);
 }
 
-.consent-option input[type="checkbox"]:checked ~ .consent-details {
-    border-color: var(--brand-color);
-    background: rgba(var(--brand-rgb), 0.05);
+.checkbox-container input[type="checkbox"]:not(:checked) + .checkbox-checkmark {
+    background-color: white;
+    border-color: #E5E7EB;
+}
+
+/* Remove any other styling changes based on checkbox state */
+.consent-details {
+    flex: 1;
+    background: transparent;
 }
 
 .consent-header {
-    font-size: 18px !important;
+    font-size: 20px !important;
     font-weight: 600 !important;
     margin-bottom: 16px !important;
 }
@@ -1796,8 +1818,7 @@ body {
     display: flex;
     align-items: center;
     color: #1A1A1A;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #E5E7EB;
+    padding-bottom:12px;
 }
 
 .consent-type-header {
@@ -1917,7 +1938,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(25, 25, 25, 0.5);
     opacity: 0; /* Start hidden */
     pointer-events: none; /* Prevent interaction when hidden */
     transition: opacity 0.3s ease-in-out; /* Smooth transition that matches drawer animation */
@@ -1993,6 +2014,7 @@ body {
     background: white;
     color: darkgreen;
     border-radius: 16px;
+    border: 1px solid #D5EEDD;
     max-height: 72px;
     min-height: 48px;
     /* Add padding for better spacing */
@@ -2059,7 +2081,7 @@ body {
 }
 
 .grid-item-text {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     line-height: 1.4;
     margin: 0;
@@ -2091,7 +2113,7 @@ body {
     }
     
     .popup-content h2 {
-        font-size: 16px; /* Smaller size for mobile */
+        font-size: 18px; /* Smaller size for mobile */
     }
 
     .popup-content .aa-logo {
@@ -2247,20 +2269,63 @@ body {
 .active-users-counter {
     text-align: center;
     margin: 16px 0 16px 0;
+    position: relative; /* Add position relative */
+    z-index: 1; /* Ensure proper stacking order */
 }
 
 .active-users-counter h3 {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
     margin: 8px 0 0;
+    color: #686868; 
 }
 
 .user-count {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 700;
     color: darkgreen;
-    transition: all 0.1s ease-in-out;
+    margin: 4px 0;
+    transition: transform 0.3s ease, color 0.3s ease;
+    display: inline-block;
+}
+
+.user-count.counting {
+    color: darkgreen;
+    animation: countPulse 0.2s ease-in-out infinite alternate;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.user-count.count-complete {
+    animation: countComplete 0.6s ease-out;
+}
+
+@keyframes countPulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.08);
+    }
+}
+
+@keyframes countComplete {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.15);
+        color: #3c992c; /* Mint green */
+        text-shadow: 0 0 20px rgba(0, 255, 60, 0.7);
+    }
+    70% {
+        transform: scale(0.92);
+        color: darkgreen;
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .account-type-container {
@@ -2271,18 +2336,12 @@ body {
 }
 
 .account-type-list {
-    display: grid; /* Enable grid layout */
-    grid-template-columns: repeat(2, 1fr); /* Create 2 columns by default */
-    gap: 8px; /* Space between grid items */
+    display: flex; /* Change to flex instead of grid */
+    flex-wrap: wrap; /* Allow items to wrap */
+    gap: 8px; /* Consistent gap */
     margin-top: 8px;
-    border-radius: 8px;
     margin-bottom: 16px;
-}
-
-@media (min-width: 750px) {
-    .account-type-list {
-        grid-template-columns: repeat(3, 1fr); /* Switch to 4 columns on wider screens */
-    }
+    justify-content: flex-start; /* Start alignment */
 }
 
 .account-type-container h3 {
@@ -2293,23 +2352,36 @@ body {
     margin: 0;
 }
 
-
 .account-type-item {
     display: flex;
-    max-width: 240px;
     align-items: center;
     gap: 8px;
     font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
-    padding: 12px 8px;
+    padding: 12px 16px; /* More horizontal padding */
     border-radius: 8px;
+    border: 1px solid #D5EEDD;
     color: darkslategray;
     background-color: white;
+    box-sizing: border-box;
+    white-space: nowrap; /* Prevent text wrapping inside items */
 }
 
 .account-type-list.single-column {
-    grid-template-columns: 1fr; /* Single column layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align to the start */
+}
+
+/* For smaller screens, adjust spacing */
+@media (max-width: 480px) {
+    .account-type-list {
+        gap: 12px;
+    }
+    
+    .account-type-item {
+        padding: 10px 12px;
+    }
 }
 
 @keyframes gradientAnimation {
@@ -2891,4 +2963,202 @@ body::after {
 
 .bank-name, .phone-number {
     font-weight: 600;
+}
+
+/* For smaller screens, make items take appropriate width */
+@media (max-width: 480px) {
+    .account-type-list {
+        grid-template-columns: repeat(auto-fill, minmax(100px, auto));
+        gap: 10px;
+    }
+    
+    .account-type-item {
+        min-width: 100px;
+    }
+}
+
+.popup-header, .popup-body p, .popup-usecase, .account-type-container, .why-onemoney-container, .get-started-button-container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup-content.show .popup-header {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.05s;
+}
+
+.popup-content.show .popup-body p {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.1s;
+}
+
+.popup-content.show .popup-usecase {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+}
+
+.popup-content.show .account-type-container {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.2s;
+}
+
+.popup-content.show .why-onemoney-container {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.25s;
+}
+
+.popup-content.show .why-onemoney-container .grid-list .grid-item {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup-content.show .why-onemoney-container .grid-list .grid-item:nth-child(1) {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.3s;
+}
+
+.popup-content.show .why-onemoney-container .grid-list .grid-item:nth-child(2) {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.35s;
+}
+
+.popup-content.show .why-onemoney-container .grid-list .grid-item:nth-child(3) {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.4s;
+}
+
+.popup-content.show .why-onemoney-container .grid-list .grid-item:nth-child(4) {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.45s;
+}
+
+.popup-content.show .active-users-counter {
+    opacity: 0;
+    transform: translateY(0);
+    transition-delay: 0.5s;
+    animation: fadeIn 0.3s ease 0.5s forwards;
+}
+
+.popup-content.show .get-started-button-container {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.6s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styling for consent purpose banner */
+.consent-purpose {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    padding: 16px 12px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.consent-purpose p {
+    font-size: 12px;
+    font-weight: 400;
+    color: #111;
+    margin: 0 0 8px 0;
+}
+
+.consent-purpose h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+}
+
+/* Styling for consent details table */
+.consent-details-table {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 4px;
+    background-color: white;
+    font-family: inherit;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.consent-details-table .consent-row {
+    display: flex;
+    align-items: center;
+    min-height: 32px; /* Ensure consistent row height */
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.consent-details-table .consent-row:last-child {
+    border-bottom: none;
+}
+
+.consent-details-table .consent-label {
+    width: 40%;
+    /* Removed the erroneous min-width:: line */
+    height: 100%; /* Full height of row */
+    display: flex; /* Enable flexbox */
+    align-items: center; /* Center content vertically */
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px; /* Add letter spacing for better readability */
+    border-right: 1px solid #e0e0e0;
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* Remove duplicate consent-label class */
+/* .consent-label {
+    min-height: 32px;
+    height: 100%;
+} */
+
+.consent-details-table .consent-value {
+    width: 60%;
+    height: 100%; /* Full height of row */
+    display: flex; /* Enable flexbox */
+    align-items: center; /* Center content vertically */
+    justify-content: flex-end; /* Right align text */
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.consent-details-table .arrow-icon {
+    margin: 0 6px;
+    color: #666;
+    display: inline-block;
+    font-family: sans-serif;
+}
+
+/* Add more horizontal spacing for the statement period values */
+.consent-details-table .consent-row:first-child .consent-value {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    white-space: nowrap; /* Prevent line breaks between date and arrow */
 }

@@ -387,7 +387,12 @@
 
                     <!-- Add this inside main-content, after account-selection-screen -->
                     <div class="screen" id="confirmation-screen" data-active="false">
-                        
+                    
+                        <h1 class="consent-header">Approve to share consent</h1>
+                        <div class="consent-purpose">
+                            <p>ICICI Bank requires your consent for:</p>
+                            <h2>Loan Approval</h2>
+                        </div>
                         <div class="confirmation-details">
                             <div class="selected-accounts-header">
                                 <h2>Selected Accounts (2)</h2>
@@ -422,7 +427,6 @@
                                 <span>Link More Accounts</span>
                             </button>
                         </div>
-                        <h1 class="consent-header">Please approve the following consents:</h1>
                         <div class="consent-container" id="loan-approval-consent">
                             <label class="consent-option">
                                 <div class="consent-details">
@@ -433,7 +437,24 @@
                                         </div>
                                         <div class="consent-type-header">Loan Evaluation</div>
                                     </div>
-                                    <div class="consent-description">Requesting your last 6 months Bank Statement (Fetched Once). Consent valid for 7 days and data life is 1 day.</div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20, 2023 <span class="arrow-icon">→</span> Jul 20, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">One Time</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 27, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
                             <label class="consent-option">
@@ -445,7 +466,24 @@
                                         </div>
                                         <div class="consent-type-header">Loan Monitoring</div>
                                     </div>
-                                    <div class="consent-description">Requesting your last 6 months Bank Statement (Fetched Twice a Month). Consent valid for 2 years and data life is 1 day.</div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20, 2023 <span class="arrow-icon">→</span> Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">Twice a Month</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -460,7 +498,24 @@
                                         </div>
                                         <div class="consent-type-header">Portfolio Management</div>
                                     </div>
-                                    <div class="consent-description">Requesting your last 2 years Bank Statement. The consent is valid for 2 years and data will be fetched four times a month. Data life is 1 month.</div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20, 2023 <span class="arrow-icon">→</span> Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">Four Times a Month</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Month</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -475,7 +530,24 @@
                                         </div>
                                         <div class="consent-type-header">Credit Line Approval</div>
                                     </div>
-                                    <div class="consent-description">Requesting your financial statement once a month for the next two years. Data life is 1 week.</div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20, 2025 <span class="arrow-icon">→</span> Jan 20, 2027</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">5 Months</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2027</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Month</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -490,7 +562,24 @@
                                         </div>
                                         <div class="consent-type-header">Credit Card Application</div>
                                     </div>
-                                    <div class="consent-description">Requesting your last 6 months Bank Statement(fetched once).Consent is valid for 7 days and data life is 1 day.</div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20, 2023 <span class="arrow-icon">→</span> Jul 20, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">One Time</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 27, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -629,11 +718,11 @@
             </div>
             <div class="popup-body">
                 <p style="margin: 0;">
-                    Account Aggregator is a framework introduced by RBI to enhance financial data sharing between businesses 
+                    Account Aggregator is a framework introduced by RBI to enhance consent-based financial data sharing between businesses 
                     and their consumers. <a href="https://sahamati.org.in/what-is-account-aggregator/" style="color: #277ae7;" target="_blank">Learn More</a>
                 </p>
                 <div class="popup-usecase">
-                    <label for="usecase-input">Your Use Case:</label>
+                    <label for="usecase-input">Select Use Case:</label>
                     <div class="select-wrapper">
                         <select class="usecase-select" id="usecase-input">
                             <option value="loan-approval" selected>Loan Approval</option>
@@ -644,7 +733,7 @@
                     </div>
                 </div>
                 <div class="account-type-container">
-                    <h3>Account types requested:</h3>    
+                    <h3>Account types fetched:</h3>    
                     <div class="account-type-list">
                         <div class="account-type-item">
                             <i data-lucide="landmark" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
@@ -669,7 +758,7 @@
                         </div>
                         <div class="grid-item">
                             <i data-lucide="chart-pie" class="icon-class"></i>
-                            <span class="grid-item-text">57% Market Share</span>
+                            <span class="grid-item-text">57% Market Share </span>
                         </div>
                         <div class="grid-item">
                             <i data-lucide="network" class="icon-class"></i>
@@ -681,7 +770,7 @@
                         </div>
                     </div>
                     <div class="active-users-counter">
-                        <h3>Accounts Linked:</h3>
+                        <h3>Accounts Currently Linked:</h3>
                         <div id="user-count" class="user-count">0</div>
                     </div>
                 </div>

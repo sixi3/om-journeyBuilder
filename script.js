@@ -1,3 +1,37 @@
+// Add CSS styles for transitions at the top of the file after existing style definitions
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .bank-section {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        overflow: hidden;
+    }
+    .bank-section.hidden {
+        opacity: 0;
+        transform: translateY(10px);
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+    .account-option {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .account-type-item {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .account-type-item.fade-in {
+        animation: fadeIn 0.3s ease forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+`);
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Lucide icons
     lucide.createIcons();
@@ -8,6 +42,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize current use case at the top
     const usecaseInput = document.getElementById('usecase-input');
     let currentUseCase = usecaseInput ? usecaseInput.value : 'loan-approval'; // Default to loan-approval if input not found
+
+    // Function to update the consent purpose banner
+    function updateConsentPurpose() {
+        const consentPurpose = document.querySelector('.consent-purpose');
+        if (!consentPurpose) return;
+        
+        const pElement = consentPurpose.querySelector('p');
+        const h2Element = consentPurpose.querySelector('h2');
+        
+        if (!pElement || !h2Element) return;
+        
+        const brandName = nameInput.value || 'ICICI Bank';
+        const useCaseValue = usecaseInput.value || 'loan-approval';
+        
+        // Get the readable use case name
+        let useCaseText = 'Loan Approval';
+        switch (useCaseValue) {
+            case 'portfolio-management':
+                useCaseText = 'Portfolio Management';
+                break;
+            case 'credit-line':
+                useCaseText = 'Credit Line';
+                break;
+            case 'credit-card':
+                useCaseText = 'Credit Card';
+                break;
+        }
+        
+        // Update elements
+        pElement.textContent = `${brandName} needs your consent for:`;
+        h2Element.textContent = useCaseText;
+    }
 
     // Cache DOM elements
     const uploadButton = document.querySelector('.upload-button');
@@ -32,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset file input
                 fileInput.value = '';
                 // Reset header logo to default
-                headerLogo.src = 'icici-logo.png';
+                headerLogo.src = 'icici-logo.svg';
                 // Hide file info
                 if (fileInfo) fileInfo.style.display = 'none';
                 // Reset upload button text
@@ -124,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headerBrandName.textContent = brandName;
         document.getElementById('success-brand-name').textContent = brandName;
         document.getElementById('page-title').textContent = 'Select Accounts';
+        updateConsentPurpose(); // Update consent purpose when brand name changes
     });
 
     // Function to update styles of account options based on checkbox state
@@ -323,6 +390,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update consent containers based on selected use case
         updateConsentContainers();
+        
+        // Update consent purpose section
+        updateConsentPurpose();
         
         // Update account counts
         updateDiscoveredAccountsCount();
@@ -563,7 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     rejectButton.classList.add('visible');
                     // Initialize accordion elements after the transition.
                     initializeAccordion();
-                }, 300);
+                    // Update the consent purpose text
+                    updateConsentPurpose();
+                }, 300); // Match the transition time
             } else {
                 rejectButton.classList.remove('visible');
                 setTimeout(() => {
@@ -626,6 +698,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Keep the edit button by only updating the text node
                 phoneNumberElement.childNodes[0].nodeValue = maskedNumber;
             }
+        }
+        
+        // If switching to confirmation screen, update the consent purpose
+        if (toScreen.id === 'confirmation-screen') {
+            updateConsentPurpose();
         }
     }
 
@@ -735,33 +812,40 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get allowed account types for current use case
             const allowedTypes = getAllowedAccountTypes();
             
-            // First, show all sections and then filter
+            // First, apply transitions to all sections
             const allSections = bankSectionsContainer.querySelectorAll('.bank-section');
             allSections.forEach(section => {
-                section.style.display = 'none';
+                // Add hidden class instead of display: none for smooth transition
+                section.classList.add('hidden');
                 
                 // For dynamically generated sections, check their data attributes
                 const accountType = section.querySelector('.account-option')?.getAttribute('data-type');
                 // For static sections, check their classes
                 const sectionClasses = section.classList;
                 
-                if (filterType === 'all') {
-                    // Show section if either condition is met
-                    if ((sectionClasses.contains('banks') && allowedTypes.includes('bank')) ||
-                        (sectionClasses.contains('mf') && allowedTypes.includes('mf')) ||
-                        (sectionClasses.contains('equity') && allowedTypes.includes('equity')) ||
-                        (accountType && allowedTypes.includes(accountType))) {
-                        section.style.display = 'block';
+                // Set a timeout to allow the transition to occur before we actually hide the element
+                setTimeout(() => {
+                    if (filterType === 'all') {
+                        // Show section if either condition is met
+                        if ((sectionClasses.contains('banks') && allowedTypes.includes('bank')) ||
+                            (sectionClasses.contains('mf') && allowedTypes.includes('mf')) ||
+                            (sectionClasses.contains('equity') && allowedTypes.includes('equity')) ||
+                            (accountType && allowedTypes.includes(accountType))) {
+                            section.classList.remove('hidden');
+                        }
+                    } else {
+                        // For specific filter types
+                        const sectionClass = filterType === 'bank' ? 'banks' : filterType;
+                        if ((sectionClasses.contains(sectionClass) && allowedTypes.includes(filterType)) ||
+                            (accountType === filterType && allowedTypes.includes(filterType))) {
+                            section.classList.remove('hidden');
+                        }
                     }
-                } else {
-                    // For specific filter types
-                    const sectionClass = filterType === 'bank' ? 'banks' : filterType;
-                    if ((sectionClasses.contains(sectionClass) && allowedTypes.includes(filterType)) ||
-                        (accountType === filterType && allowedTypes.includes(filterType))) {
-                        section.style.display = 'block';
-                    }
-                }
+                }, 100); // Short delay to ensure animation works properly
             });
+            
+            // Update account type container with smooth transitions
+            updateAccountTypeContainerWithAnimation(filterType);
         });
     }
 
@@ -811,7 +895,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const accountNumberElement = option.querySelector('.account-number');
                 
                 // Handle both cases: when logo is an img or when it's an icon
-                let bankLogo = 'icici-logo.png'; // Default fallback
+                let bankLogo = 'icici-logo.svg'; // Default fallback
                 if (bankLogoElement) {
                     bankLogo = bankLogoElement.src;
                 } else if (bankInfo.querySelector('[data-lucide="landmark"]')) {
@@ -880,8 +964,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeDrawerButton = document.querySelector('.close-drawer');
 
     function openDrawer() {
+        // Only set display to block if it's not already visible
+        if (drawerBackdrop.style.display !== 'block') {
+            drawerBackdrop.style.display = 'block';
+            
+            // Force a reflow to ensure the browser registers the display change
+            void drawerBackdrop.offsetWidth;
+        }
+        
+        // Now add the open class to both elements to trigger transitions
         consentDrawer.classList.add('open');
         drawerBackdrop.classList.add('open');
+        
         // Find and disable scroll on app-content instead of body
         const appContent = document.querySelector('.app-content');
         if (appContent) {
@@ -892,6 +986,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeDrawer() {
         consentDrawer.classList.remove('open');
         drawerBackdrop.classList.remove('open');
+        
+        // Check if OTP drawer is still open before hiding backdrop
+        const otpDrawer = document.querySelector('.otp-verification-drawer');
+        const isOtpDrawerOpen = otpDrawer && otpDrawer.classList.contains('open');
+        
+        if (!isOtpDrawerOpen) {
+            // Set a timeout to hide the backdrop after the transition completes
+            setTimeout(() => {
+                drawerBackdrop.style.display = 'none';
+            }, 300); // Match this timing with the transition duration in CSS
+        }
+        
         // Re-enable scroll on app-content
         const appContent = document.querySelector('.app-content');
         if (appContent) {
@@ -1234,13 +1340,31 @@ document.addEventListener('DOMContentLoaded', function() {
     updateConsentContainers();
 
     window.onload = function() {
+        console.log('Window loaded, initializing popup');
         const popup = document.getElementById('how-it-works-popup');
         const backdrop = document.querySelector('.drawer-backdrop');
+        
+        // Make sure user count element exists
+        const userCountElement = document.getElementById('user-count');
+        if (userCountElement) {
+            console.log('User count element found:', userCountElement);
+        } else {
+            console.error('User count element NOT found, check your HTML!');
+        }
+        
         popup.style.display = 'block';
         backdrop.classList.add('open'); // Fade in the backdrop
+        
         setTimeout(() => {
+            console.log('Adding show class to popup content');
             popup.querySelector('.popup-content').classList.add('show'); // Fade in the content
-            animateUserCount(52834276); // Start the animation
+            
+            // Delayed user count animation for better impact - reduced delay
+            setTimeout(() => {
+                console.log('Triggering user count animation');
+                animateUserCount(52834276); // Start the animation with delay
+            }, 600); // Reduced delay from 1800ms to 600ms
+            
         }, 10); // Small timeout to ensure the display is set before adding the class
     };
 
@@ -1560,9 +1684,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function animateUserCount(finalNumber) {
         const userCountElement = document.getElementById('user-count');
         let currentNumber = 0;
-        const duration = 1000; // Total duration of the animation in milliseconds
+        const duration = 1500; // Total duration of the animation in milliseconds
         const startTime = performance.now();
-
+        
+        // Add the counting class to trigger the pulsating animation
+        userCountElement.classList.add('counting');
+        
         function updateCount(timestamp) {
             const elapsed = timestamp - startTime;
             const progress = Math.min(elapsed / duration, 1); // Normalize progress to [0, 1]
@@ -1578,7 +1705,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (progress < 1) {
                 requestAnimationFrame(updateCount);
             } else {
-                userCountElement.textContent = finalNumber.toLocaleString(); // Ensure it ends at the final number
+                // Ensure it ends at the final number
+                userCountElement.textContent = finalNumber.toLocaleString();
+                
+                // Add the completion class for the bounce effect
+                userCountElement.classList.add('count-complete');
+                
+                // Remove classes after animation completes
+                setTimeout(() => {
+                    userCountElement.classList.remove('counting', 'count-complete');
+                }, 1000);
             }
         }
 
@@ -1784,15 +1920,23 @@ document.addEventListener('DOMContentLoaded', function() {
      * When the x icon is clicked, clear the search field and ensure it remains focused.
      */
     if (searchInputGroup) {
-        searchInputGroup.addEventListener('click', function (e) {
-            const clickedIcon = e.target.closest('.search-icon');
-            if (clickedIcon && bankSearchInput.value.trim().length > 0) {
-                console.log('X icon clicked, clearing search');
-                bankSearchInput.value = '';
-                bankSearchInput.dispatchEvent(new Event('input'));
-                updateSearchIcon();
-                bankSearchInput.focus(); // Keep the search input active after clearing.
-            }
+        // Using both click and touchend events to ensure it works on all devices
+    ['click', 'touchend'].forEach(eventType => {
+            searchInputGroup.addEventListener(eventType, function (e) {
+                // Prevent default behavior for touchend to avoid any interference
+            if (eventType === 'touchend') {
+                    e.preventDefault();
+                }
+                
+                const clickedIcon = e.target.closest('.search-icon');
+                if (clickedIcon && bankSearchInput.value.trim().length > 0) {
+                    console.log(`${eventType} event on X icon, clearing search`);
+                    bankSearchInput.value = '';
+                    bankSearchInput.dispatchEvent(new Event('input'));
+                    updateSearchIcon();
+                    bankSearchInput.focus(); // Keep the search input active after clearing.
+                }
+            });
         });
     }
 
@@ -2381,14 +2525,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const verifyButton = otpDrawer.querySelector('.verify-otp-button');
         verifyButton.disabled = true;
         
-        // Show drawer and backdrop
-        drawerBackdrop.style.display = 'block';
+        // Only set display to block if it's not already visible
+        if (drawerBackdrop.style.display !== 'block') {
+            drawerBackdrop.style.display = 'block';
+            
+            // Force a reflow to ensure the browser registers the display change
+            void drawerBackdrop.offsetWidth;
+        }
         
-        // Use a small delay to ensure the backdrop appears before starting animation
-        setTimeout(() => {
-            drawerBackdrop.classList.add('open');
-            otpDrawer.classList.add('open');
-        }, 10);
+        // Now add the open class to both elements to trigger transitions
+        drawerBackdrop.classList.add('open');
+        otpDrawer.classList.add('open');
         
         // Start resend OTP timer
         startResendOTPTimer();
@@ -2451,10 +2598,15 @@ document.addEventListener('DOMContentLoaded', function() {
         otpDrawer.classList.remove('open');
         drawerBackdrop.classList.remove('open');
         
-        // Hide backdrop after animation completes
-        setTimeout(() => {
-            drawerBackdrop.style.display = 'none';
-        }, 400); // Match the animation duration
+        // Check if consent drawer is still open before hiding backdrop
+        const isConsentDrawerOpen = consentDrawer && consentDrawer.classList.contains('open');
+        
+        if (!isConsentDrawerOpen) {
+            // Hide backdrop after animation completes
+            setTimeout(() => {
+                drawerBackdrop.style.display = 'none';
+            }, 300); // Match the transition duration in CSS
+        }
     }
 
     // Add a click event listener to the "Get Started" button in the popup
@@ -2512,6 +2664,149 @@ document.addEventListener('DOMContentLoaded', function() {
         // Start the number counter animation for active users
         animateUserCount(84632);
     });
+
+    // Call initially to set default values
+    updateConsentPurpose();
+
+    // Call initially to set default values (only if we're on the confirmation screen)
+    if (document.getElementById('confirmation-screen') && 
+        document.getElementById('confirmation-screen').dataset.active === 'true' &&
+        document.querySelector('.consent-purpose')) {
+        updateConsentPurpose();
+    }
+
+    // Add functionality to grey out consent content when checkbox is unchecked
+    function setupConsentCheckboxes() {
+        const consentCheckboxes = document.querySelectorAll('.consent-option .checkbox-container input[type="checkbox"]');
+        
+        // Add class to parent consent option when checkbox is unchecked
+        function updateConsentOptionState(checkbox) {
+            const consentOption = checkbox.closest('.consent-option');
+            if (checkbox.checked) {
+                consentOption.classList.remove('unchecked');
+            } else {
+                consentOption.classList.add('unchecked');
+            }
+        }
+        
+        // Setup each checkbox
+        consentCheckboxes.forEach(checkbox => {
+            // Set initial state
+            updateConsentOptionState(checkbox);
+            
+            // Add change event listener
+            checkbox.addEventListener('change', function() {
+                updateConsentOptionState(this);
+            });
+        });
+    }
+    
+    // Call initially and whenever consent containers might be updated
+    setupConsentCheckboxes();
+    
+    // Call this after any updates to the consent containers
+    const originalUpdateConsentContainers = updateConsentContainers;
+    updateConsentContainers = function() {
+        originalUpdateConsentContainers.apply(this, arguments);
+        setTimeout(setupConsentCheckboxes, 0); // Ensure DOM is updated first
+    };
+
+    // Add a new function for animated account type container updates
+    function updateAccountTypeContainerWithAnimation(filterType) {
+        const allowedTypes = getAllowedAccountTypes();
+        const typeMapping = {
+            bank: {
+                icon: 'landmark',
+                label: 'Bank Accounts'
+            },
+            mf: {
+                icon: 'hand-coins',
+                label: 'Mutual Funds'
+            },
+            equity: {
+                icon: 'chart-candlestick',
+                label: 'Equity'
+            }
+        };
+
+        const container = document.querySelector('.account-type-container .account-type-list');
+        if (container) {
+            // First, fade out existing content
+            const existingItems = container.querySelectorAll('.account-type-item');
+            existingItems.forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(-5px)';
+            });
+            
+            // Then, after a short delay, update the content
+            setTimeout(() => {
+                let html = '';
+                // If "all" filter is selected, show all allowed types
+                if (filterType === 'all') {
+                    allowedTypes.forEach(type => {
+                        const mapping = typeMapping[type];
+                        if (mapping) {
+                            html += `<div class="account-type-item fade-in">
+                                        <i data-lucide="${mapping.icon}" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                        <span>${mapping.label}</span>
+                                     </div>`;
+                        }
+                    });
+                } else {
+                    // Otherwise, only show the selected type if it's allowed
+                    if (allowedTypes.includes(filterType)) {
+                        const mapping = typeMapping[filterType];
+                        if (mapping) {
+                            html += `<div class="account-type-item fade-in">
+                                        <i data-lucide="${mapping.icon}" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                        <span>${mapping.label}</span>
+                                     </div>`;
+                        }
+                    }
+                }
+                container.innerHTML = html;
+                // Re-initialize lucide icons so the new icons render correctly
+                lucide.createIcons();
+            }, 200); // Short delay for a smooth transition
+        }
+    }
+
+    // Update the original updateAccountTypeContainer function to use display property instead of directly manipulating innerHTML
+    function updateAccountTypeContainer() {
+        const allowedTypes = getAllowedAccountTypes();
+        // Mapping for icon name and display label for each account type.
+        const typeMapping = {
+            bank: {
+                icon: 'landmark',
+                label: 'Bank Accounts'
+            },
+            mf: {
+                icon: 'hand-coins',
+                label: 'Mutual Funds'
+            },
+            equity: {
+                icon: 'chart-candlestick',
+                label: 'Equity'
+            }
+        };
+
+        const container = document.querySelector('.account-type-container .account-type-list');
+        if (container) {
+            let html = '';
+            allowedTypes.forEach(type => {
+                const mapping = typeMapping[type];
+                if (mapping) {
+                    html += `<div class="account-type-item">
+                                <i data-lucide="${mapping.icon}" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                                <span>${mapping.label}</span>
+                             </div>`;
+                }
+            });
+            container.innerHTML = html;
+            // Re-initialize lucide icons so the new icons render correctly.
+            lucide.createIcons();
+        }
+    }
 
 });
 
