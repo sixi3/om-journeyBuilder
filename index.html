@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Selection</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+</head>
+<body>
+    <!-- Customization Controls -->
+    <div class="customization-controls">
+        <div class="controls-header">
+            <i data-lucide="settings-2"></i>
+            <span>Customise UI</span>
+        </div>
+        
+        <div class="controls-row-1">
+            <div class="control-group col-1">
+                <label for="logo-input">Brand Logo:</label>
+                <div class="upload-container">
+                    <div class="upload-button">
+                        <input type="file" id="logo-input" accept="image/*" hidden>
+                        <i data-lucide="upload" class="upload-icon"></i>
+                        <i data-lucide="refresh-cw" class="refresh-icon" style="display: none;"></i>
+                        <span class="button-text">Upload Logo</span>
+                        <span class="file-name"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group col-2">
+                <label for="color-input">Brand Colour:</label>
+                <div class="color-input-wrapper">
+                    <input type="color" id="color-input" value="#184C8F">
+                    <span class="color-value">#184C8F</span>
+                </div>
+            </div>
+        </div>
+        <div class="controls-row-2">
+            <div class="control-group col-3">
+                <label for="name-input">Brand Name:</label>
+                <input type="text" id="name-input" placeholder="ICICI Bank">
+            </div>
+
+            <div class="control-group col-4">
+                <label>Brand Font:</label>
+                <div class="select-wrapper">
+                    <select class="font-select" id="font-input">
+                        <option value="" disabled selected>Search for your font</option>
+                        <option value="Abel">Abel</option>
+                        <option value="Archivo">Archivo</option>
+                        <option value="Arimo">Arimo</option>
+                        <option value="Assistant">Assistant</option>
+                        <option value="Barlow">Barlow</option>
+                        <option value="Bitter">Bitter</option>
+                        <option value="Cabin">Cabin</option>
+                        <option value="Catamaran">Catamaran</option>
+                        <option value="Crimson Text">Crimson Text</option>
+                        <option value="DM Sans">DM Sans</option>
+                        <option value="Dosis">Dosis</option>
+                        <option value="Fira Sans">Fira Sans</option>
+                        <option value="Heebo">Heebo</option>
+                        <option value="Hind Siliguri">Hind Siliguri</option>
+                        <option value="IBM Plex Sans">IBM Plex Sans</option>
+                        <option value="Inconsolata">Inconsolata</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Josefin Sans">Josefin Sans</option>
+                        <option value="Karla">Karla</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Libre Baskerville">Libre Baskerville</option>
+                        <option value="Libre Franklin">Libre Franklin</option>
+                        <option value="Manrope">Manrope</option>
+                        <option value="Maven Pro">Maven Pro</option>
+                        <option value="Merriweather">Merriweather</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Mukta">Mukta</option>
+                        <option value="Mulish">Mulish</option>
+                        <option value="Nanum Gothic">Nanum Gothic</option>
+                        <option value="Noto Sans">Noto Sans</option>
+                        <option value="Noto Sans JP">Noto Sans JP</option>
+                        <option value="Noto Serif">Noto Serif</option>
+                        <option value="Nunito">Nunito</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Oswald">Oswald</option>
+                        <option value="Oxygen">Oxygen</option>
+                        <option value="PT Sans">PT Sans</option>
+                        <option value="PT Serif">PT Serif</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Prompt">Prompt</option>
+                        <option value="Quicksand">Quicksand</option>
+                        <option value="Raleway">Raleway</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Roboto Condensed">Roboto Condensed</option>
+                        <option value="Roboto Mono">Roboto Mono</option>
+                        <option value="Rubik">Rubik</option>
+                        <option value="Source Code Pro">Source Code Pro</option>
+                        <option value="Source Sans Pro">Source Sans Pro</option>
+                        <option value="Space Grotesk">Space Grotesk</option>
+                        <option value="Titillium Web">Titillium Web</option>
+                        <option value="Ubuntu">Ubuntu</option>
+                        <option value="Work Sans">Work Sans</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Main Product UI -->
+        <div class="product-ui">
+            <div class="app-content">
+                <!-- Header with more height -->
+                <header class="app-header">
+                    <div class="header-content">
+                        <div class="header-left-group">
+                            <button class="back-btn">
+                                <i data-lucide="chevron-left"></i>
+                            </button>
+                            <div class="logo-container">
+                                <img id="header-logo" src="ICICI-logo.png" alt="Logo">
+                                <span id="header-brand-name">ICICI Bank</span>
+                            </div>
+                        </div>
+                        <div class="header-right-group">
+                            <button class="language-btn" id="language-toggle" title="Change language">
+                                <i data-lucide="globe"></i>
+                            </button>
+                            <button class="menu-btn">
+                                <i data-lucide="ellipsis-vertical"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+    
+                <!-- Main content with screens -->
+                <main class="main-content">
+                    <!-- Screen 1: Mobile Number Input -->
+                    <div class="screen" id="mobile-input-screen" data-active="true">
+                        <div class="top-image">
+                            <img id="header-image" src="h4.png" alt="Logo">
+                        </div>
+                        <h1>Login to Onemoney</h1>
+                        <p class="subtitle">Login to link your accounts and share financial data</p>
+                        
+                        <div class="phone-input-group">
+                            <div class="country-code">+91</div>
+                            <input type="tel" 
+                                   id="phone-input" 
+                                   placeholder="Enter mobile number"
+                                   maxlength="10"
+                                   pattern="[0-9]*">
+                        </div>
+                        <div class="otp-input-group">
+                            <input type="tel" 
+                                   id="otp-input" 
+                                   placeholder="Enter any 6-digit OTP"
+                                   maxlength="6"
+                                   pattern="[0-9]*">
+                        </div>
+
+                        <!-- Add the new banner here -->
+                        <div class="aa-info-banner">
+                            <img id="om-onlylogo" src="om-onlylogo.png" alt="OneMoney">
+                            <span>Onemoney is India's largest and most-trusted platform to share financial data</span>
+                        </div>
+                        <div class="spacer"></div>
+                    </div>
+
+                    <div class="screen" id="bank-selection-screen" data-active="false">
+                        <div class="bank-selection-header">
+                            <h1>Select Your Bank(s)</h1>
+                            <p>Select banks you have deposits or term accounts with</p>
+                        </div>
+                        <!-- New Search Input Container -->
+                        <div class="search-input-group">
+                            <input type="text" id="bank-search" placeholder="Search for banks">
+                            <i data-lucide="search" class="search-icon"></i>
+                        </div>
+                        <div class="selected-banks">
+                            <h2>Selected Banks (0)</h2>
+                            <div class="selected-bank-list">
+                                <div class="selected-bank-item">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bank-list-header">
+                            <h2>Popular Banks</h2>
+                        </div>
+                        <div class="bank-list">
+                            <div class="bank-item">
+
+                            </div>
+                        </div>
+                        <div class="spacer"></div>
+                    </div>
+
+                    <div class="screen" id="account-selection-screen" data-active="false">
+                        <div class="discovered-accounts">
+                            <span>Showing 7 accounts discovered for:</span>
+                            <span class="phone-number">
+                                +91 XXXXXX3210
+                                <button class="edit-phone">edit</button>
+                            </span>
+                        </div>
+                        
+                        <h1 id="page-title">Select Accounts</h1>
+                        <p>Select the accounts you want to link:</p>
+
+                        <div class="accounts-counter">
+                            <div class="pill">0 accounts selected</div>
+                        </div>
+
+                        <div class="filter-tabs-container">
+                            <div class="filter-tabs">
+                                <button class="filter-tab active" data-filter="all">All Accounts</button>
+                                <button class="filter-tab" data-filter="bank">Bank Accounts</button>
+                                <button class="filter-tab" data-filter="mf">Mutual Funds</button>
+                                <button class="filter-tab" data-filter="equity">Equity</button>
+                            </div>
+                        </div>
+
+                        <div id="bank-sections-container">
+
+                            <div class="bank-section banks">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="hdfc-logo.png" alt="HDFC Bank" class="bank-logo">
+                                        <span>HDFC Bank</span>
+                                    </div>
+                                    <button class="select-all">Select All</button> <!-- Added Select All button -->
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="bank">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Savings Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX4001</div>
+                                        </div>
+                                    </label>
+                
+                                    <label class="account-option" data-type="bank">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Current Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX4651</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                
+                            <div class="bank-section banks">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="icici-logo.png" alt="ICICI Bank" class="bank-logo">
+                                        <span>ICICI Bank</span>
+                                    </div>
+                                    <button class="select-all">Select All</button> <!-- Added Select All button -->
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="bank">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Savings Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX7890</div>
+                                        </div>
+                                    </label>
+                
+                                    <label class="account-option" data-type="bank">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark">
+                                            </span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">Current Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX3456</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="bank-section mf">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="KFIN-logo.png" alt="HDFC Mutual Funds" class="bank-logo">
+                                        <span>KFIN Technologies</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="mf">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Folio No: XXXXXXXX8821</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                            </div>
+
+                            <div class="bank-section mf">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="CAMS-logo.png" alt="HDFC Mutual Funds" class="bank-logo">
+                                        <span>CAMS Technologies</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="mf">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Folio No: XXXXXXXX4126</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                            </div>
+
+                            <div class="bank-section equity">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="CSDL-logo.png" alt="Zerodha" class="bank-logo">
+                                        <span>CSDL</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="equity">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX5566</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="bank-section equity">
+                                <div class="bank-info">
+                                    <div class="header-left-group">
+                                        <img src="NSDL-logo.png" alt="Zerodha" class="bank-logo">
+                                        <span>NSDL</span>
+                                    </div>
+                                    <button class="select-all">Select All</button>
+                                </div>
+                                <div class="account-options">
+                                    <label class="account-option" data-type="equity">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="account" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="account-details">
+                                            <div class="account-type">DEMAT Account</div>
+                                            <div class="account-number">Account No: XXXXXXXX8278</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="spacer"></div>
+                    </div>
+
+                    <!-- Add this inside main-content, after account-selection-screen -->
+                    <div class="screen" id="confirmation-screen" data-active="false">
+                    
+                        <h1 class="consent-header">Approve to share consent</h1>
+                        <div class="consent-purpose">
+                            <p>ICICI Bank requires your consent for:</p>
+                            <h2>Loan Approval</h2>
+                        </div>
+                        <div class="confirmation-details">
+                            <div class="selected-accounts-header">
+                                <h2>Selected Accounts (2)</h2>
+                                <button class="toggle-details">
+                                    <i data-lucide="chevron-up"></i>
+                                </button>
+                            </div>
+                            <div class="selected-accounts-list">
+                                <div class="selected-account-item">
+                                    <div class="bank-details">
+                                        <img src="hdfc-logo.png" alt="HDFC Bank" class="bank-logo">
+                                        <div class="account-info">
+                                            <div class="account-type">Savings Account</div>
+                                            <div class="account-number">XXXXXXXX4001</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="selected-account-item">
+                                    <div class="bank-details">
+                                        <img src="icici-logo.png" alt="ICICI Bank" class="bank-logo">
+                                        <div class="account-info">
+                                            <div class="account-type">Current Account</div>
+                                            <div class="account-number">XXXXXXXX3456</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <button class="link-more">
+                                <i data-lucide="circle-plus"></i>
+                                <span>Link More Accounts</span>
+                            </button>
+                        </div>
+                        <div class="consent-container" id="loan-approval-consent">
+                            <label class="consent-option">
+                                <div class="consent-details">
+                                    <div class="consent-type">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="consent" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="consent-type-header">Loan Evaluation</div>
+                                    </div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20,<br>2023 <span class="arrow-icon">→</span> Jul 20,<br>2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">One Time</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 27, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="consent-option">
+                                <div class="consent-details">
+                                    <div class="consent-type">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="consent" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="consent-type-header">Loan Monitoring</div>
+                                    </div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20,<br>2023 <span class="arrow-icon">→</span> Jan 20,<br>2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">Twice a Month</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="consent-container" id="portfolio-management-consent" style="display: none;">
+                            <label class="consent-option">
+                                <div class="consent-details">
+                                    <div class="consent-type">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="consent" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="consent-type-header">Portfolio Management</div>
+                                    </div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20,<br>2023 <span class="arrow-icon">→</span> Jan 20,<br>2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">Four Times a Month</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2025</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Month</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="consent-container" id="credit-line-consent" style="display: none;">
+                            <label class="consent-option">
+                                <div class="consent-details">
+                                    <div class="consent-type">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="consent" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="consent-type-header">Credit Line Approval</div>
+                                    </div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20,<br>2025 <span class="arrow-icon">→</span> Jan 20,<br>2027</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">5 Months</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 20, 2027</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Month</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="consent-container" id="credit-card-consent" style="display: none;">
+                            <label class="consent-option">
+                                <div class="consent-details">
+                                    <div class="consent-type">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" name="consent" checked>
+                                            <span class="checkbox-checkmark"></span>
+                                        </div>
+                                        <div class="consent-type-header">Credit Card Application</div>
+                                    </div>
+                                    <div class="consent-details-table">
+                                        <div class="consent-row">
+                                            <div class="consent-label">Statement Period</div>
+                                            <div class="consent-value">Jan 20,<br>2023 <span class="arrow-icon">→</span> Jul 20,<br>2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Frequency</div>
+                                            <div class="consent-value">One Time</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Consent Valid Till</div>
+                                            <div class="consent-value">Jan 27, 2023</div>
+                                        </div>
+                                        <div class="consent-row">
+                                            <div class="consent-label">Data Deleted Before</div>
+                                            <div class="consent-value">1 Day</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <button class="consent-details-button">
+                            <span>Consent Details</span>
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                        <div class="spacer"></div>
+                    </div>
+                    <div class="screen" id="success-screen" data-active="false">
+                        <div class="success-content">
+                            <img src="success.png" alt="Success" class="success-image">
+                            <h1>CONSENT APPROVED</h1>
+                            <p>Your data has been successfully shared with <span id="success-brand-name">ICICI Bank</span></p>
+                            <button class="download-button">
+                                <i data-lucide="download"></i>
+                                <span>Download Data</span>
+                            </button>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Bottom drawer stays the same but we'll update its button text dynamically -->
+                <div class="bottom-drawer">
+                    <div class="scroll-indicator">
+                        <i data-lucide="chevron-down"></i>
+                    </div>
+                    <div class="button-group">
+                        <button class="proceed-button" disabled>
+                            Send OTP
+                        </button>
+                        <button class="reject-button" style="display: none;">
+                            Reject
+                        </button>
+                    </div>
+                    <div class="powered-by">
+                        <span>powered by</span>
+                        <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
+                    </div>
+                </div>
+                <div class="drawer-backdrop"></div>
+                <div class="consent-drawer">
+                    <div class="drawer-header">
+                        <h2>Consent Details</h2>
+                        <button class="close-drawer">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="drawer-content">
+                        <div class="consent-section">
+                            <h3>Loan Evaluation</h3>
+                            <p>We request access to:</p>
+                            <ul>
+                                <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary, Transactions)</li>
+                                <li>Data will be fetched once</li>
+                                <li>Consent valid for 7 days</li>
+                                <li>Data life is 1 day</li>
+                                <li>Your data will be stored</li>
+                                <li>Account types: Deposits, Term Deposits</li>
+                            </ul>
+                        </div>
+                        <div class="consent-section">
+                            <h3>Loan Monitoring</h3>
+                            <p>We request access to:</p>
+                            <ul>
+                                <li>Bank statement for the period <span class="date-range">14/08/2023-14/02/2024</span> (Profile, Summary)</li>
+                                <li>Data will be refreshed twice a month</li>
+                                <li>Consent valid for 2 years</li>
+                                <li>Data life is 1 day</li>
+                                <li>Your data will be stored</li>
+                                <li>Account types: Deposits, Term Deposits</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New OTP Verification Drawer -->
+                <div class="otp-verification-drawer">
+                    <div class="otp-verification-content">
+                        <div class="institution-info">
+                            <img src="" alt="Bank Logo" class="institution-logo">
+                            <span class="institution-name"></span>
+                        </div>
+                        <div class="otp-progress">
+                            <span>OTP <span class="current-step">1</span> of <span class="total-steps">2</span></span>
+                        </div>
+                        <p class="otp-instruction">Enter <span class="bank-name">HDFC</span> OTP sent to <span class="phone-number">81XXXXXXXX</span></p>
+                        <div class="otp-input-container">
+                            <input type="tel" 
+                                  class="sequential-otp-input"
+                                  placeholder="Enter any 6-digit OTP"
+                                  maxlength="6"
+                                  pattern="[0-9]*">
+                        </div>
+                        <div class="otp-error-message"></div>
+                        <div class="otp-resend">
+                            <span>Resend OTP in <span class="resend-timer">00:20</span></span>
+                        </div>
+                        <button class="verify-otp-button">Verify OTP</button>
+                        <div class="unable-to-receive">
+                            <a href="#">Unable to receive OTP</a>
+                        </div>
+                        <div class="powered-by-section">
+                            <span>powered by</span>
+                            <img src="onemoney-logo.png" alt="OneMoney" class="powered-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rejection Confirmation Drawer -->
+                <div class="rejection-drawer">
+                    <div class="rejection-content">
+                        <div class="drawer-content">
+                            <div class="rejection-warning">
+                                <img src="reject-icon.png" alt="Warning" class="rejection-icon">
+                                <h2>Are you sure you want to deny consent?</h2>
+                                <p class="rejection-note">This action is not reversible and will take you back to <span id="rejection-brand-name">ICICI Bank</span> app</p>
+
+                                <div class="rejection-buttons">
+                                    <button class="confirm-rejection">Yes I want to decline</button>
+                                    <button class="cancel-rejection">Go Back</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="get-in-touch-pill" id="get-in-touch-pill">
+        <div class="contact-header-container">
+            <i data-lucide="phone-call" class="contact-icon"></i>
+            <span>Get in touch</span>
+        </div>
+        <div class="contact-info" style="display: none;">
+            <button class="close-contact-info" aria-label="Close">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="contact-info-content">
+                <p>Email: support@onemoney.in <button class="copy-button" data-text="support@onemoney.in"><i data-lucide="copy"></i></button></p>
+            </div> 
+            <div class="contact-info-content">
+                <p>Phone: +91 7306725734 <button class="copy-button" data-text="+91 7306725734"><i data-lucide="copy"></i></button></p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    
+    <!-- Updated How It Works Popup -->
+    <div id="how-it-works-popup" class="popup">
+        <div class="popup-content" style="max-width: 1000px;">
+            <div class="popup-header">
+                <div class="popup-title-container">
+                    <h3 class="popup-title">Welcome to the</h3>
+                    <h2 class="popup-title">Onemoney AA Demo</h2>
+                </div>
+                <img src="popup-image.png" alt="popup image" class="popup-image">
+            </div>
+            <div class="popup-body">
+                <p style="margin: 0;">
+                    Account Aggregator is a framework introduced by RBI to enhance consent-based financial data sharing between businesses 
+                    and their consumers. <a href="https://sahamati.org.in/what-is-account-aggregator/" style="color: #277ae7;" target="_blank">Learn More</a>
+                </p>
+                <div class="popup-usecase">
+                    <label for="usecase-input">Select Use Case:</label>
+                    <div class="select-wrapper">
+                        <select class="usecase-select" id="usecase-input">
+                            <option value="loan-approval" selected>Loan Approval</option>
+                            <option value="portfolio-management">Portfolio Management</option>
+                            <option value="credit-line">Credit Line</option>
+                            <option value="credit-card">Credit Card</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="account-type-container">
+                    <h3>Account types fetched:</h3>    
+                    <div class="account-type-list">
+                        <div class="account-type-item">
+                            <i data-lucide="landmark" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Bank Accounts</span>
+                        </div>
+                        <div class="account-type-item">
+                            <i data-lucide="hand-coins" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Mutual Funds</span>   
+                        </div>
+                        <div class="account-type-item">
+                            <i data-lucide="chart-candlestick" class="account-type-icon" style="color: darkslategray; height: 16px; width: 16px;"></i>
+                            <span>Equity</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="why-onemoney-container">
+                    <h3>Why Choose Onemoney?</h3>
+                    <div class="grid-list">
+                        <div class="grid-item">
+                            <i data-lucide="medal" class="icon-class"></i>
+                            <span class="grid-item-text">India's first and largest AA</span>
+                        </div>
+                        <div class="grid-item">
+                            <i data-lucide="chart-pie" class="icon-class"></i>
+                            <span class="grid-item-text">57% Market Share </span>
+                        </div>
+                        <div class="grid-item">
+                            <i data-lucide="network" class="icon-class"></i>
+                            <span class="grid-item-text">Largest network of FIPs</span>
+                        </div>
+                        <div class="grid-item">
+                            <i data-lucide="route" class="icon-class"></i>
+                            <span class="grid-item-text">Industry-leading UX</span>
+                        </div>
+                    </div>
+                    <div class="active-users-counter">
+                        <h3>Accounts Currently Linked:</h3>
+                        <div id="user-count" class="user-count">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="get-started-button-container">
+                <p style="display: flex; justify-content: center; align-items: center; margin: 8px; font-size: 12px; font-weight: 400; color: #939393; text-align: center;">
+                    Please note that all financial data is mocked and for demo purposes only
+                </p>
+                <button class="get-started-button">Get Started</button>
+                <div class="powered-by">
+                    <span>powered by</span>
+                    <img id="powered-logo" src="onemoney-logo.png" alt="OneMoney">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
