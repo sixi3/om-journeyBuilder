@@ -72,7 +72,7 @@ const translations = {
         'DEMAT Account': 'DEMAT Account',
         'Account No': 'Account No',
         'Folio No': 'Folio No',
-        'Proceed with Selected': 'Proceed with Selected',
+        'Proceed': 'Proceed',
         
         // Confirmation Screen
         'Approve to share consent': 'Approve to share consent',
@@ -129,7 +129,7 @@ const translations = {
         // Proceed Button States
         'Send OTP': 'Send OTP',
         'Continue': 'Continue',
-        'Proceed with Selected': 'Proceed with Selected',
+        'Proceed': 'Proceed',
         'Approve': 'Approve',
         
         // Others
@@ -179,7 +179,7 @@ const translations = {
         'DEMAT Account': 'डीमैट खाता',
         'Account No': 'खाता संख्या',
         'Folio No': 'फोलियो संख्या',
-        'Proceed with Selected': 'चयनित के साथ आगे बढ़ें',
+        'Proceed': 'चयनित के साथ आगे बढ़ें',
         
         // Confirmation Screen
         'Approve to share consent': 'सहमति साझा करने के लिए स्वीकृति दें',
@@ -236,7 +236,7 @@ const translations = {
         // Proceed Button States
         'Send OTP': 'OTP भेजें',
         'Continue': 'जारी रखें',
-        'Proceed with Selected': 'चयनित के साथ आगे बढ़ें',
+        'Proceed': 'चयनित के साथ आगे बढ़ें',
         'Approve': 'स्वीकृत करें',
         
         // Others
@@ -2516,7 +2516,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
 
             case 'account-selection-screen':
-                buttonText = 'Proceed with Selected';
+                buttonText = 'Proceed';
                 // Only count visible and enabled checkboxes
                 const selectedAccounts = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)').length;
                 console.log('Proceed button update - Selected accounts count:', selectedAccounts);
@@ -2525,6 +2525,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             case 'confirmation-screen':
                 buttonText = 'Approve';
+                proceedButton.style.display = 'block';  
                 break;
                 
             default:
@@ -3028,6 +3029,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const errorMessage = otpDrawer.querySelector('.otp-error-message');
         const bankName = otpDrawer.querySelector('.bank-name');
         const phoneNumber = otpDrawer.querySelector('.phone-number');
+        const unableToReceiveElement = otpDrawer.querySelector('.unable-to-receive');
         
         institutionLogo.src = currentInstitution.logo;
         institutionName.textContent = currentInstitution.name;
@@ -3049,6 +3051,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Disable verify button initially
         const verifyButton = otpDrawer.querySelector('.verify-otp-button');
         verifyButton.disabled = true;
+        
+        // Check if this is the final OTP screen and if all previous OTPs were skipped
+        const isFinalOTPScreen = currentInstitutionIndex === selectedInstitutions.length - 1;
+        const allPreviousOTPsSkipped = currentInstitutionIndex > 0 && 
+                                      skippedInstitutions.length === currentInstitutionIndex && 
+                                      verifiedInstitutions.length === 0;
+        
+        // Hide "Unable to receive OTP" link if this is the final OTP screen and all previous OTPs were skipped
+        if (isFinalOTPScreen && allPreviousOTPsSkipped) {
+            unableToReceiveElement.style.display = 'none';
+        } else {
+            unableToReceiveElement.style.display = 'block';
+        }
         
         // Only set display to block if it's not already visible
         if (drawerBackdrop.style.display !== 'block') {
