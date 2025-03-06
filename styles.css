@@ -6,6 +6,7 @@
     --brand-font: 'Cabin', sans-serif;
     --brand-color: #468584;
     --brand-rgb: 114, 45, 170;
+    --checkmark-color: #722DAA;
 }
 
 body {
@@ -609,8 +610,8 @@ body {
 
 /* Checked state */
 .checkbox-container input[type="checkbox"]:checked ~ .checkbox-checkmark {
-    background-color: var(--brand-color, #722DAA);
-    border-color: var(--brand-color, #722DAA);
+    background-color: white;
+    border: 1.5px solid #E5E7EB;
 }
 
 /* Checkmark icon */
@@ -622,7 +623,7 @@ body {
     top: 2px;
     width: 4px;
     height: 8px;
-    border: solid white;
+    border: solid var(--checkmark-color, var(--brand-color, #722DAA));
     border-width: 0 1.5px 1.5px 0;
     transform: rotate(45deg);
 }
@@ -1129,11 +1130,13 @@ body {
     font-size: 16px;
     font-weight: 500;
     font-family: 'DM Sans', sans-serif;
-    box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .get-started-button:hover {
-    background-color: #01562b;
+    transform: translateY(-2px);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 
 .lang-option:hover {
@@ -1766,13 +1769,13 @@ body {
 
 /* Only change the checkbox appearance */
 .checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
-    background-color: var(--brand-color, #722DAA);
-    border-color: var(--brand-color, #722DAA);
+    background-color: white;
+    border: 1.5px solid #E5E7EB;
 }
 
 .checkbox-container input[type="checkbox"]:not(:checked) + .checkbox-checkmark {
-    background-color: white;
-    border-color: #E5E7EB;
+    background-color: white !important;
+    border: 1.5px solid #E5E7EB; /* Grey border when unchecked */
 }
 
 /* Remove any other styling changes based on checkbox state */
@@ -3386,12 +3389,12 @@ body::after {
     justify-content: center;
     gap: 8px;
     transition: all 0.2s ease;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
 }
 
 .download-button:hover {
     transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 
 .download-button svg{
@@ -3471,4 +3474,30 @@ body::after {
     width: 6px;
     height: 6px;
     border-radius: 50%;
+}
+
+/* Account selection specific checkbox styles */
+#account-selection-screen .account-option {
+    border: 1.5px solid #E5E7EB; /* Default grey border for unchecked */
+    transition: border-color 0.2s ease;
+}
+
+#account-selection-screen .account-option.checked {
+    border-color: var(--brand-color, #722DAA); /* Brand color border when checked */
+}
+
+/* Checkbox styling */
+#account-selection-screen .account-option .checkbox-container input[type="checkbox"]:not(:checked) + .checkbox-checkmark {
+    background-color: white;
+    border: 1.5px solid #E5E7EB; /* Grey border when unchecked */
+}
+
+#account-selection-screen .account-option .checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
+    background-color: var(--brand-color, #722DAA); /* Brand color fill when checked */
+    border-color: var(--brand-color, #722DAA);
+}
+
+#account-selection-screen .account-option .checkbox-container input[type="checkbox"]:checked ~ .checkbox-checkmark:after {
+    display: block;
+    border-color: white; /* White checkmark on brand color background */
 }

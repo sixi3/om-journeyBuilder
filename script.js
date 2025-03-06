@@ -380,9 +380,94 @@ function initializeLanguage() {
     updateLanguageUI();
 }
 
+// Function to handle account option checkbox changes
+function setupAccountOptionCheckboxes() {
+    // Get the current brand color
+    const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-color').trim() || '#722DAA';
+    
+    // Apply initial state based on checked status
+    document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]').forEach(checkbox => {
+        const accountOption = checkbox.closest('.account-option');
+        const checkmark = accountOption.querySelector('.checkbox-checkmark');
+        
+        if (checkbox.checked) {
+            accountOption.classList.add('checked');
+            accountOption.style.borderColor = brandColor;
+            
+            // Style the checkbox
+            if (checkmark) {
+                checkmark.style.backgroundColor = brandColor;
+                checkmark.style.borderColor = brandColor;
+            }
+        } else {
+            accountOption.classList.remove('checked');
+            accountOption.style.borderColor = '#E5E7EB'; // Default grey border
+            
+            // Style the checkbox
+            if (checkmark) {
+                checkmark.style.backgroundColor = 'white';
+                checkmark.style.borderColor = '#E5E7EB';
+            }
+        }
+        
+        // Add change event listener
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                accountOption.classList.add('checked');
+                accountOption.style.borderColor = brandColor;
+                
+                // Style the checkbox
+                if (checkmark) {
+                    checkmark.style.backgroundColor = brandColor;
+                    checkmark.style.borderColor = brandColor;
+                }
+            } else {
+                accountOption.classList.remove('checked');
+                accountOption.style.borderColor = '#E5E7EB';
+                
+                // Style the checkbox
+                if (checkmark) {
+                    checkmark.style.backgroundColor = 'white';
+                    checkmark.style.borderColor = '#E5E7EB';
+                }
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Lucide icons
     lucide.createIcons();
+    
+    // Set initial CSS variables for colors
+    const initialColor = document.getElementById('color-input').value || '#184C8F'; // Get value from input or use default
+    document.documentElement.style.setProperty('--brand-color', initialColor);
+    document.documentElement.style.setProperty('--checkmark-color', initialColor);
+    
+    // Reset all checkbox backgrounds to white first
+    document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]:not(:checked) + .checkbox-checkmark').forEach(checkmark => {
+        checkmark.style.backgroundColor = 'white';
+        checkmark.style.borderColor = '#E5E7EB';
+    });
+    
+    // Apply initial brand color to all checked account options
+    document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]:checked').forEach(checkbox => {
+        const accountOption = checkbox.closest('.account-option');
+        const checkmark = accountOption.querySelector('.checkbox-checkmark');
+        
+        if (accountOption) {
+            accountOption.style.borderColor = initialColor;
+            accountOption.classList.add('checked');
+            
+            if (checkmark) {
+                checkmark.style.backgroundColor = initialColor;
+                checkmark.style.borderColor = initialColor;
+            }
+        }
+    });
+    
+    // Initialize account option checkboxes
+    setupAccountOptionCheckboxes();
     
     // Initialize language support first
     document.getElementById('language-toggle').addEventListener('click', switchLanguage);
@@ -495,16 +580,38 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.proceed-button').style.background = `linear-gradient(135deg, ${color} 0%, ${darkenedColor} 100%)`;
         document.querySelector('.link-more').style.color = color;
         
+        // Update CSS variables for brand color
+        document.documentElement.style.setProperty('--brand-color', color);
+        document.documentElement.style.setProperty('--checkmark-color', color);
 
-        const selectedAccount = document.querySelector('.account-option.selected');
-        if (selectedAccount) {
-            selectedAccount.style.borderColor = color;
-            const rgb = hexToRGB(color);
-            selectedAccount.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`;
-        }
-
-        document.querySelectorAll('.checkbox-checkmark .checked').forEach(checkbox => {
-            checkbox.style.color = color;
+        // Log to verify what's happening
+        console.log('Updating brand color to:', color);
+        console.log('Found checked account options:', document.querySelectorAll('#account-selection-screen .account-option.checked').length);
+        
+        // Update all checked account options directly
+        const checkedOptions = document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]:checked');
+        console.log('Found checked checkboxes:', checkedOptions.length);
+        
+        // Update parent account options of checked checkboxes
+        checkedOptions.forEach(checkbox => {
+            const accountOption = checkbox.closest('.account-option');
+            if (accountOption) {
+                accountOption.style.borderColor = color;
+                accountOption.classList.add('checked'); // Ensure class is added
+                console.log('Updating border color on account option');
+            }
+        });
+        
+        // Update all checkboxes in checked state
+        document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]:checked + .checkbox-checkmark').forEach(checkmark => {
+            checkmark.style.backgroundColor = color;
+            checkmark.style.borderColor = color;
+        });
+        
+        // Make sure unchecked checkboxes are white
+        document.querySelectorAll('#account-selection-screen .account-option input[type="checkbox"]:not(:checked) + .checkbox-checkmark').forEach(checkmark => {
+            checkmark.style.backgroundColor = 'white';
+            checkmark.style.borderColor = '#E5E7EB'; // grey border
         });
     }
 
@@ -573,14 +680,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const accountOptions = bankSection.querySelectorAll('.account-option');
         accountOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
+            const checkmark = option.querySelector('.checkbox-checkmark');
+            
             if (checkbox.checked) {
+                // Update account option borders
                 option.classList.add('selected');
+                option.classList.add('checked');
                 option.style.borderColor = brandColor;
-                // Removed background color change
+                
+                // Update checkbox styles
+                if (checkmark) {
+                    checkmark.style.backgroundColor = brandColor;
+                    checkmark.style.borderColor = brandColor;
+                }
             } else {
+                // Update account option borders
                 option.classList.remove('selected');
-                option.style.borderColor = '';
-                // Removed background color reset
+                option.classList.remove('checked');
+                option.style.borderColor = '#E5E7EB'; // reset to grey
+                
+                // Update checkbox styles
+                if (checkmark) {
+                    checkmark.style.backgroundColor = 'white';
+                    checkmark.style.borderColor = '#E5E7EB'; // reset to grey
+                }
             }
         });
     }
@@ -878,10 +1001,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasUncheckedOptions = Array.from(accountOptions)
             .some(option => !option.querySelector('input[type="checkbox"]').checked);
 
+        // Get the current brand color
+        const currentColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-color').trim() || '#722DAA';
+
         // If any options are unchecked, select all. Otherwise, unselect all
         accountOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
+            const checkmark = option.querySelector('.checkbox-checkmark');
             checkbox.checked = hasUncheckedOptions;
+            
+            // Update the checked class and styles based on checkbox state
+            if (hasUncheckedOptions) {
+                option.classList.add('checked');
+                // Apply current brand color to border
+                option.style.borderColor = currentColor;
+                
+                // Update checkbox style
+                if (checkmark) {
+                    checkmark.style.backgroundColor = currentColor;
+                    checkmark.style.borderColor = currentColor;
+                }
+            } else {
+                option.classList.remove('checked');
+                option.style.borderColor = '#E5E7EB'; // Reset to default gray border
+                
+                // Update checkbox style
+                if (checkmark) {
+                    checkmark.style.backgroundColor = 'white';
+                    checkmark.style.borderColor = '#E5E7EB';
+                }
+            }
         });
 
         // Update styles for all options in this bank section
@@ -1075,6 +1224,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // If switching to confirmation screen, update the consent purpose
         if (toScreen.id === 'confirmation-screen') {
             updateConsentPurpose();
+            
+            // Initialize consent checkboxes and update button state
+            setTimeout(() => {
+                console.log('Setting up consent checkboxes for confirmation screen');
+                // Re-initialize consent checkboxes
+                setupConsentCheckboxes();
+                // Set up observer for any changes
+                setupConsentCheckboxObserver();
+                // Make sure the button state is correct
+                updateProceedButton();
+                
+                // Double-check button state again after a short delay
+                setTimeout(() => {
+                    console.log('Double-checking button state for confirmation screen');
+                    updateProceedButton();
+                }, 500);
+            }, 300);
         }
         
         // Translate the content of the new screen if not in English
@@ -1282,6 +1448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const bankInfo = bankSection.querySelector('.bank-info');
                 if (!bankInfo) return null; // Skip if bank info not found
+                
                 
                 const bankNameElement = bankInfo.querySelector('span');
                 const bankLogoElement = bankInfo.querySelector('img');
@@ -2093,8 +2260,63 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Remove classes after animation completes
                 setTimeout(() => {
                     userCountElement.classList.remove('counting', 'count-complete');
+                    
+                    // Start the continuous increment after the initial animation
+                    startContinuousIncrement(finalNumber);
                 }, 1000);
             }
+        }
+
+        // Function to continuously increment the number with varying intervals
+        function startContinuousIncrement(startNumber) {
+            let number = startNumber;
+            
+            // First increment after 2 seconds
+            setTimeout(() => {
+                number++;
+                
+                // Add the counting class briefly for a small pulse effect
+                userCountElement.classList.add('counting');
+                
+                // Update the display
+                userCountElement.textContent = number.toLocaleString();
+                
+                // Remove the counting class after a short duration
+                setTimeout(() => {
+                    userCountElement.classList.remove('counting');
+                }, 300);
+                
+                // Start random interval increments after the first one
+                scheduleNextIncrement();
+            }, 2000);
+            
+            // Function to schedule the next increment at a random interval
+            function scheduleNextIncrement() {
+                // Random interval between 10-20 seconds
+                const randomInterval = Math.floor(10000 + Math.random() * 10000);
+                
+                // Store the timeout ID on the window object so it can be cleared if needed
+                window.userCountTimeoutId = setTimeout(() => {
+                    number++;
+                    
+                    // Add the counting class briefly for a small pulse effect
+                    userCountElement.classList.add('counting');
+                    
+                    // Update the display
+                    userCountElement.textContent = number.toLocaleString();
+                    
+                    // Remove the counting class after a short duration
+                    setTimeout(() => {
+                        userCountElement.classList.remove('counting');
+                    }, 300);
+                    
+                    // Schedule the next increment
+                    scheduleNextIncrement();
+                }, randomInterval);
+            }
+            
+            // Store the current number on the window object so it can be accessed if needed
+            window.currentUserCount = number;
         }
 
         requestAnimationFrame(updateCount);
@@ -2525,7 +2747,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             case 'confirmation-screen':
                 buttonText = 'Approve';
-                proceedButton.style.display = 'block';  
+                proceedButton.style.display = 'block';
+                
+                // Check if any consent checkboxes are selected in visible consent containers
+                const visibleConsentContainers = document.querySelectorAll('.consent-container[style*="block"]');
+                const checkedConsentCheckboxes = document.querySelectorAll('.consent-container[style*="block"] .consent-option .checkbox-container input[type="checkbox"]:checked');
+                
+                console.log('Consent containers visible:', visibleConsentContainers.length);
+                console.log('Checked consent checkboxes:', checkedConsentCheckboxes.length);
+                
+                // Only disable if there are visible consent containers but none are checked
+                if (visibleConsentContainers.length > 0) {
+                    proceedButton.disabled = checkedConsentCheckboxes.length === 0;
+                    console.log('Approve button disabled:', proceedButton.disabled);
+                }
                 break;
                 
             default:
@@ -3373,7 +3608,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add functionality to grey out consent content when checkbox is unchecked
     function setupConsentCheckboxes() {
+        // Clear any existing event listeners by cloning and replacing nodes
+        const consentOptions = document.querySelectorAll('.consent-option');
+        consentOptions.forEach(option => {
+            const checkbox = option.querySelector('.checkbox-container input[type="checkbox"]');
+            if (checkbox) {
+                const newCheckbox = checkbox.cloneNode(true);
+                checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+            }
+        });
+        
+        // Now add event listeners to the fresh checkboxes
         const consentCheckboxes = document.querySelectorAll('.consent-option .checkbox-container input[type="checkbox"]');
+        console.log('Setting up', consentCheckboxes.length, 'consent checkboxes');
         
         // Add class to parent consent option when checkbox is unchecked
         function updateConsentOptionState(checkbox) {
@@ -3392,9 +3639,25 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add change event listener
             checkbox.addEventListener('change', function() {
+                console.log('Consent checkbox changed. Checked:', this.checked);
                 updateConsentOptionState(this);
+                
+                // Update the proceed button state whenever a consent checkbox changes
+                if (document.getElementById('confirmation-screen').dataset.active === 'true') {
+                    // Force update with a small delay to ensure DOM is updated
+                    setTimeout(() => {
+                        console.log('Calling updateProceedButton from checkbox change');
+                        updateProceedButton();
+                    }, 10);
+                }
             });
         });
+        
+        // Force an update of the button state
+        if (document.getElementById('confirmation-screen').dataset.active === 'true') {
+            console.log('Force updating proceed button after checkbox setup');
+            updateProceedButton();
+        }
     }
     
     // Call initially and whenever consent containers might be updated
@@ -3403,8 +3666,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call this after any updates to the consent containers
     const originalUpdateConsentContainers = updateConsentContainers;
     updateConsentContainers = function() {
+        console.log('Updating consent containers');
         originalUpdateConsentContainers.apply(this, arguments);
-        setTimeout(setupConsentCheckboxes, 0); // Ensure DOM is updated first
+        
+        // Use a longer timeout to ensure DOM is fully updated
+        setTimeout(() => {
+            console.log('Setting up consent checkboxes after container update');
+            setupConsentCheckboxes();
+            
+            // Update proceed button state when consent containers are updated
+            if (document.getElementById('confirmation-screen').dataset.active === 'true') {
+                console.log('Updating proceed button after consent container update');
+                updateProceedButton();
+            }
+        }, 50); // Increased timeout to ensure DOM is updated first
     };
 
     // Add a new function for animated account type container updates
@@ -3727,6 +4002,68 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open(driveViewUrl, '_blank');
         });
     }
+
+    // Add a MutationObserver to monitor consent checkbox changes
+    function setupConsentCheckboxObserver() {
+        console.log('Setting up consent checkbox observer');
+        
+        // Disconnect any existing observer
+        if (window.consentCheckboxObserver) {
+            window.consentCheckboxObserver.disconnect();
+        }
+        
+        // Create a new observer
+        window.consentCheckboxObserver = new MutationObserver(function(mutations) {
+            if (document.getElementById('confirmation-screen').dataset.active === 'true') {
+                console.log('Mutation detected in consent checkboxes');
+                updateProceedButton();
+            }
+        });
+        
+        // Get all consent containers
+        const consentContainers = document.querySelectorAll('.consent-container');
+        
+        // Observe each container for changes
+        consentContainers.forEach(container => {
+            window.consentCheckboxObserver.observe(container, { 
+                attributes: true, 
+                childList: true, 
+                subtree: true,
+                attributeFilter: ['checked', 'class', 'style'] 
+            });
+        });
+    }
+    
+    // Call the function to set up the observer
+    setupConsentCheckboxObserver();
+    
+    // Call this whenever consent containers are updated
+    const originalUpdateConsentContainers2 = updateConsentContainers;
+    updateConsentContainers = function() {
+        originalUpdateConsentContainers2.apply(this, arguments);
+        
+        // Reset the observer after containers are updated
+        setTimeout(() => {
+            setupConsentCheckboxObserver();
+        }, 100);
+    };
+    
+    // Set up event handler directly for proceed button on confirmation screen
+    document.querySelector('.proceed-button').addEventListener('click', function() {
+        // If we're on the confirmation screen, double-check if any consents are selected
+        if (document.getElementById('confirmation-screen').dataset.active === 'true') {
+            const checkedConsents = document.querySelectorAll('.consent-container[style*="block"] .consent-option .checkbox-container input[type="checkbox"]:checked');
+            if (checkedConsents.length === 0) {
+                console.log('Prevent proceed: No consents selected');
+                this.disabled = true;
+                // Show an alert message
+                alert('Please select at least one consent option to proceed.');
+            }
+        }
+    });
+
+    // The setupAccountOptionCheckboxes function is already defined earlier in the code,
+    // so we don't need to redefine it here.
 
 });
 
