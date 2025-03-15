@@ -436,8 +436,22 @@ function setupAccountOptionCheckboxes() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Lucide icons
-    lucide.createIcons();
+    // Initialize Lucide icons - with a more robust approach
+    // Define a function to initialize icons
+    function initIcons() {
+        if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
+            // The library is loaded and the function exists
+            lucide.createIcons();
+            console.log('Lucide icons initialized successfully');
+        } else {
+            console.warn('Waiting for Lucide to load...');
+            // Try again in 100ms
+            setTimeout(initIcons, 100);
+        }
+    }
+    
+    // Start the initialization process
+    initIcons();
     
     // Set initial CSS variables for colors
     const initialColor = document.getElementById('color-input').value || '#184C8F'; // Get value from input or use default
