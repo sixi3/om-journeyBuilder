@@ -2746,13 +2746,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
 
             case 'bank-selection-screen':
-                buttonText = 'Continue';
+                buttonText = 'Fetch Accounts';
                 const selectedBanks = document.querySelectorAll('.selected-bank-item');
                 proceedButton.disabled = selectedBanks.length === 0;
                 break;
 
             case 'account-selection-screen':
-                buttonText = 'Proceed';
+                buttonText = 'Link Accounts';
                 // Only count visible and enabled checkboxes
                 const selectedAccounts = document.querySelectorAll('.account-option[style*="flex"] input[type="checkbox"]:checked:not(:disabled)').length;
                 console.log('Proceed button update - Selected accounts count:', selectedAccounts);
@@ -3622,6 +3622,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add functionality to grey out consent content when checkbox is unchecked
     function setupConsentCheckboxes() {
+        // Get the current brand color
+        const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-color').trim() || '#722DAA';
+        
         // Clear any existing event listeners by cloning and replacing nodes
         const consentOptions = document.querySelectorAll('.consent-option');
         consentOptions.forEach(option => {
@@ -3636,25 +3639,48 @@ document.addEventListener('DOMContentLoaded', function() {
         const consentCheckboxes = document.querySelectorAll('.consent-option .checkbox-container input[type="checkbox"]');
         console.log('Setting up', consentCheckboxes.length, 'consent checkboxes');
         
-        // Add class to parent consent option when checkbox is unchecked
-        function updateConsentOptionState(checkbox) {
+        // Apply initial state based on checked status
+        consentCheckboxes.forEach(checkbox => {
             const consentOption = checkbox.closest('.consent-option');
+            const checkmark = consentOption.querySelector('.checkbox-checkmark');
+            
             if (checkbox.checked) {
                 consentOption.classList.remove('unchecked');
+                
+                // Style the checkbox
+                if (checkmark) {
+                    checkmark.style.backgroundColor = brandColor;
+                    checkmark.style.borderColor = brandColor;
+                }
             } else {
                 consentOption.classList.add('unchecked');
+                
+                // Style the checkbox
+                if (checkmark) {
+                    checkmark.style.backgroundColor = 'white';
+                    checkmark.style.borderColor = '#E5E7EB';
+                }
             }
-        }
-        
-        // Setup each checkbox
-        consentCheckboxes.forEach(checkbox => {
-            // Set initial state
-            updateConsentOptionState(checkbox);
             
             // Add change event listener
             checkbox.addEventListener('change', function() {
-                console.log('Consent checkbox changed. Checked:', this.checked);
-                updateConsentOptionState(this);
+                if (this.checked) {
+                    consentOption.classList.remove('unchecked');
+                    
+                    // Style the checkbox
+                    if (checkmark) {
+                        checkmark.style.backgroundColor = brandColor;
+                        checkmark.style.borderColor = brandColor;
+                    }
+                } else {
+                    consentOption.classList.add('unchecked');
+                    
+                    // Style the checkbox
+                    if (checkmark) {
+                        checkmark.style.backgroundColor = 'white';
+                        checkmark.style.borderColor = '#E5E7EB';
+                    }
+                }
                 
                 // Update the proceed button state whenever a consent checkbox changes
                 if (document.getElementById('confirmation-screen').dataset.active === 'true') {

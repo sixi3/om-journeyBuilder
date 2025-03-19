@@ -623,7 +623,7 @@ body {
     top: 2px;
     width: 4px;
     height: 8px;
-    border: solid var(--checkmark-color, var(--brand-color, #722DAA));
+    border: solid white;
     border-width: 0 1.5px 1.5px 0;
     transform: rotate(45deg);
 }
@@ -1749,39 +1749,115 @@ body {
 .consent-option {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    background: white;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 16px;
+    width: 100%;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    position: relative;
 }
 
-/* Use the 'unchecked' class added by JavaScript to grey out content */
-.consent-option.unchecked .consent-value,
-.consent-option.unchecked .consent-label,
-.consent-option.unchecked .arrow-icon, 
-.consent-option.unchecked .consent-details-table {
-    color: #bdbdbd !important;
-    box-shadow: none;
-    transition: color 0.2s ease;
+.consent-option .checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    position: relative;
 }
 
-/* Only change the checkbox appearance */
-.checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
+/* These are the checkbox styles we want to keep */
+.consent-option .checkbox-container input[type="checkbox"]:not(:checked) + .checkbox-checkmark {
     background-color: white;
-    border: 1.5px solid #E5E7EB;
-}
-
-.checkbox-container input[type="checkbox"]:not(:checked) + .checkbox-checkmark {
-    background-color: white !important;
     border: 1.5px solid #E5E7EB; /* Grey border when unchecked */
 }
 
-/* Remove any other styling changes based on checkbox state */
+.consent-option .checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
+    background-color: var(--brand-color, #722DAA); /* Brand color fill when checked */
+    border-color: var(--brand-color, #722DAA);
+}
+
+.consent-option .checkbox-container input[type="checkbox"]:checked ~ .checkbox-checkmark:after {
+    display: block;
+}
+
+/* Keep this styling for consistency */
+.consent-option .checkbox-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 16px;
+    width: 16px;
+    background-color: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.consent-option .checkbox-checkmark:after {
+    content: '';
+    position: absolute;
+    display: none;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+}
+
+.consent-option .checkbox-container input[type="checkbox"]:checked ~ .checkbox-checkmark:after {
+    display: block;
+}
+
+/* Remove the hover effect on the entire consent option */
+.consent-option:hover {
+    background-color: transparent;
+}
+
+.consent-type {
+    display: flex;
+    align-items: center;
+}
+
 .consent-details {
-    flex: 1;
-    background: transparent;
+    width: 100%;
+}
+
+/* Remove overrides that might be causing inconsistencies */
+.consent-option.unchecked .consent-value,
+.consent-option.unchecked .consent-type-header {
+    opacity: 0.5;
+}
+
+.consent-option .consent-value {
+    width: 60%;
+    height: 100%; /* Full height of row */
+    display: flex; /* Enable flexbox */
+    align-items: center; /* Center content vertically */
+    justify-content: flex-end; /* Right align text */
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.consent-option .arrow-icon {
+    margin: 0 6px;
+    color: #666;
+    display: inline-block;
+    font-family: sans-serif;
+}
+
+/* Add more horizontal spacing for the statement period values */
+.consent-option .consent-row:first-child .consent-value {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    align-items: center;
+    white-space: nowrap; /* Prevent line breaks between date and arrow */
 }
 
 .consent-header {
@@ -1848,6 +1924,13 @@ body {
 .consent-type-header {
     font-size: 16px !important;
     font-weight: 600 !important;
+    color: #333;
+}
+
+.consent-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .consent-description {
@@ -1931,7 +2014,7 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #EEEEEE;
-    padding: 4px 20px;
+    padding: 4px 12px;
 }
 
 .drawer-header h2 {
@@ -1999,11 +2082,10 @@ body {
 
 /* Add these styles for the drawer content */
 .drawer-content {
-    padding: 0 4px;
+    padding: 0 0 16px 0;
 }
 
 .consent-section {
-    margin-bottom: 16px;
     padding: 4px 20px;
 }
 
@@ -3178,7 +3260,7 @@ body::after {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     background-color: white;
     font-family: inherit;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
@@ -3277,7 +3359,7 @@ body::after {
     justify-content: flex-end;
 }
 
-.rejection-drawer .drawer-content {
+.rejection-drawer {
     padding-top: 0;
 }
 
@@ -3501,3 +3583,10 @@ body::after {
     display: block;
     border-color: white; /* White checkmark on brand color background */
 }
+/* Style the unchecked consent options */
+.consent-option.unchecked .consent-value,
+.consent-option.unchecked .consent-type-header,
+.consent-option.unchecked .consent-label {
+    opacity: 0.5;
+}
+
