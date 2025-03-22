@@ -1946,6 +1946,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('User count element NOT found, check your HTML!');
         }
         
+        // Prevent body scrolling when popup is shown
+        const body = document.querySelector('body');
+        if (body) {
+            body.style.overflow = 'hidden';
+        }
+        
         popup.style.display = 'block';
         backdrop.classList.add('open'); // Fade in the backdrop
         
@@ -1962,13 +1968,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 10); // Small timeout to ensure the display is set before adding the class
     };
 
-    const body = document.querySelector('body');
-        if (body) {
-            body.style.overflow = 'hidden';
-        }
-
-    
     document.querySelector('.get-started-button').onclick = function() {
+        // Scroll to the top of the page
+        window.scrollTo(0, 0);
+        
         const popup = document.getElementById('how-it-works-popup');
         const popupContent = popup.querySelector('.popup-content');
         const backdrop = document.querySelector('.drawer-backdrop');
@@ -3556,6 +3559,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add a click event listener to the "Get Started" button in the popup
     document.querySelector('.get-started-button').addEventListener('click', function() {
+        // Scroll to the top of the page
+        window.scrollTo(0, 0);
+        
         const popup = document.getElementById('how-it-works-popup');
         popup.style.display = 'none';
         
